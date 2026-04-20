@@ -1,159 +1,88 @@
-# Turborepo starter
+# Emoteer
 
-This Turborepo starter is maintained by the Turborepo core team.
+The modern emoji SDK for the web. Headless and styled React components for emoji pickers, reactions, inline autocomplete, shortcode-to-unicode inputs, and reaction intensity sliders — built on [Zag.js](https://zagjs.com/) state machines, Tailwind CSS v4, and [emojibase](https://emojibase.dev/) data.
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```bash
+npm install @emoteer/react
 ```
 
-## What's inside?
+```tsx
+import { EmoteProvider, EmoteListPicker } from "@emoteer/react";
+import "@emoteer/react/css";
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+export function App() {
+  return (
+    <EmoteProvider locale="en">
+      <EmoteListPicker onSelect={(e) => console.log(e.unicode)} />
+    </EmoteProvider>
+  );
+}
 ```
 
-Without global `turbo`, use your package manager:
+## Features
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+- **Headless primitives** — every component is exposed as a compound (`Root` + subcomponents) so layouts, labels, and styles can be overridden without forking.
+- **Accessible by default** — WAI-ARIA patterns for combobox, grid, tooltip, popover and slider; keyboard navigation everywhere interactive.
+- **SSR-safe** — no DOM access during render, compatible with Next.js `app/` and Remix.
+- **Tree-shakeable** — ESM output, per-locale code splitting of emoji data so apps ship only what they use.
+- **28 locales** — BCP 47 tags with native-language labels and shortcodes (emojibase + CLDR providers).
+- **TypeScript first** — strict typings, discriminated unions for emoji tiers, `Locale` union with IDE autocomplete.
+- **Zero runtime resets** — library CSS ships only utilities and tokens, no Tailwind preflight, so it never overrides consumer base styles.
+
+## Packages
+
+| Package | Purpose | npm |
+| --- | --- | --- |
+| [`@emoteer/core`](./packages/core) | Framework-agnostic loader, shortcode utilities, indexes, and types. Use directly if you're building a non-React UI. | [![npm](https://img.shields.io/npm/v/@emoteer/core.svg)](https://www.npmjs.com/package/@emoteer/core) |
+| [`@emoteer/theme`](./packages/theme) | CSS-only design tokens and Tailwind CSS v4 preset. Consumed transitively by `@emoteer/react`. | [![npm](https://img.shields.io/npm/v/@emoteer/theme.svg)](https://www.npmjs.com/package/@emoteer/theme) |
+| [`@emoteer/react`](./packages/react) | Ready-to-use React 19 components (picker, autocomplete, reactions, slider, tooltip, inputs). | [![npm](https://img.shields.io/npm/v/@emoteer/react.svg)](https://www.npmjs.com/package/@emoteer/react) |
+
+Support for Svelte and Vue is planned — Zag's state machines already run framework-agnostic, so porting the UI layer is the main work.
+
+## Requirements
+
+- **Node** ≥ 20 (development).
+- **React** ^19 (peer dependency of `@emoteer/react`).
+- **Modern evergreen browsers** — Chromium, Firefox, Safari. No IE11.
+- **Tailwind CSS v4** is optional — it only matters if you want to extend the component styles with your own utilities.
+
+## Monorepo
+
+The repository is a [Turborepo](https://turbo.build/) with [pnpm](https://pnpm.io/) workspaces. To work on a single package:
+
+```bash
+pnpm install
+pnpm --filter @emoteer/react build
+pnpm --filter @emoteer/react check-types
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Or across the whole workspace:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+pnpm build
+pnpm check-types
+pnpm lint
 ```
 
-Without global `turbo`:
+## Publishing
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+Packages are published in topological order so the workspace `workspace:*` deps resolve to real versions:
+
+1. `@emoteer/core`
+2. `@emoteer/theme`
+3. `@emoteer/react`
+
+```bash
+pnpm -r publish --access public
 ```
 
-### Develop
+Verify a tarball before pushing to npm:
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+pnpm --filter @emoteer/core pack --pack-destination /tmp
+tar -tzf /tmp/emoteer-core-*.tgz
 ```
 
-Without global `turbo`, use your package manager:
+## License
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+[MIT](./LICENSE) © vyers
