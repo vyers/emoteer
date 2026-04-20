@@ -1,0 +1,46 @@
+{
+  "name": "@emoteer/theme",
+  "version": "0.1.0",
+  "description": "Design tokens, base CSS and Tailwind v4 preset for Emoteer.",
+  "license": "MIT",
+  "author": "vyers <vyers.dev@gmail.com>",
+  "homepage": "https://github.com/vyers/emoteer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vyers/emoteer.git",
+    "directory": "packages/theme"
+  },
+  "bugs": {
+    "url": "https://github.com/vyers/emoteer/issues"
+  },
+  "keywords": [
+    "emoteer",
+    "tailwindcss",
+    "theme",
+    "tokens",
+    "css"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    "./css": "./src/base.css",
+    "./tailwind": "./src/tailwind.css"
+  },
+  "files": [
+    "src/base.css",
+    "src/tailwind.css"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "tailwindcss": {
+      "optional": true
+    }
+  }
+}

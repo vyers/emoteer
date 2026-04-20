@@ -1,0 +1,35 @@
+:root {
+  --em-bg: var(--background, hsl(0 0% 100%));
+  --em-fg: var(--foreground, hsl(0 0% 9%));
+  --em-border: hsl(0 0% 85%); /* #d9d9d9 */
+  --em-primary: var(--primary, hsl(0, 0%, 87%));
+  --em-radius: var(--radius, 0.5rem);
+  --em-hover: var(--hover, hsl(210 40% 96.1%)); /* slate-100 */
+  --em-active: var(--active, hsl(210 40% 91%));
+  --em-muted: var(--muted, hsl(215.4 16.3% 46.9%)); /* slate-400 */
+  --em-shadow: var(--shadow, hsl(0 0% 0%));
+}
+
+.dark {
+  --em-bg: var(--background, hsl(0 0% 3.9%));
+  --em-fg: var(--foreground, hsl(0 0% 98%));
+  --em-border: var(--border, hsl(0 0% 20%));
+  --em-hover: var(--hover, hsl(0 0% 8%));
+  --em-active: var(--active, hsl(0 0% 15%));
+  --em-muted: var(--muted, hsl(0 0% 55%));
+}
+
+/* Zag.js scroll-area: hide native scrollbars on viewport and normalise scrollbar background. */
+.emoteer-scroll-viewport,
+[data-part="viewport"] {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;
+}
+.emoteer-scroll-viewport::-webkit-scrollbar,
+[data-part="viewport"]::-webkit-scrollbar {
+  display: none;
+}
+[data-part="scrollbar"] {
+  background-color: transparent;
+}

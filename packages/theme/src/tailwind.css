@@ -1,0 +1,27 @@
+@import "./base.css";
+
+@theme {
+  --color-em-primary: var(--em-primary);
+  --color-em-bg: var(--em-bg);
+  --color-em-fg: var(--em-fg);
+  --color-em-border: var(--em-border);
+  --color-em-hover: var(--em-hover);
+  --color-em-active: var(--em-active);
+  --color-em-muted: var(--em-muted);
+  --color-em-shadow: var(--em-shadow);
+  --radius-em: var(--em-radius);
+
+  --animate-burst: burst 0.6s ease-out forwards;
+
+  @keyframes burst {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+        scale(1.5);
+      opacity: 0;
+    }
+  }
+}
