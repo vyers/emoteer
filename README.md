@@ -1,5 +1,7 @@
 # Emoteer
 
+<img width="1500" height="500" alt="emoteer-promocional" src="https://github.com/user-attachments/assets/451b73f4-5d4e-4f0b-bc74-14b9958a00b6" />
+
 The modern emoji SDK for the web. Headless and styled React components for emoji pickers, reactions, inline autocomplete, shortcode-to-unicode inputs, and reaction intensity sliders — built on [Zag.js](https://zagjs.com/) state machines, Tailwind CSS v4, and [emojibase](https://emojibase.dev/) data.
 
 ```bash
