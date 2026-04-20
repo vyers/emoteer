@@ -1,0 +1,54 @@
+{
+  "name": "@emoteer/core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic core for Emoteer: emoji loading, indexes, types, and shortcode utilities.",
+  "license": "MIT",
+  "author": "vyers <vyers.dev@gmail.com>",
+  "homepage": "https://github.com/vyers/emoteer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vyers/emoteer.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/vyers/emoteer/issues"
+  },
+  "keywords": [
+    "emoji",
+    "emoteer",
+    "emojibase",
+    "shortcodes",
+    "unicode"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "emojibase": "^17.0.0",
+    "emojibase-data": "^17.0.0"
+  },
+  "devDependencies": {
+    "@emoteer/eslint-config": "workspace:*",
+    "@emoteer/typescript-config": "workspace:*",
+    "tsup": "^8.4.0",
+    "typescript": "5.9.2"
+  }
+}
