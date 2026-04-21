@@ -1,5 +1,7 @@
 # @emoteer/react
 
+<img width="1500" height="500" alt="emoteer-promocional" src="https://raw.githubusercontent.com/vyers/emoteer/main/assets/promotional-cover.png" />
+
 Headless and styled React components for emoji pickers, reactions, inline autocomplete, shortcode-to-unicode inputs, and reaction intensity sliders.
 
 Built on [Zag.js](https://zagjs.com/) state machines, Tailwind CSS v4, and [emojibase](https://emojibase.dev/) data. Tree-shakeable, accessible, typed, SSR-safe.

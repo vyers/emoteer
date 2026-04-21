@@ -1,6 +1,8 @@
 # web
 
-The [emoteer.dev](https://github.com/vyers/emoteer) marketing site and documentation portal. Built with [Next.js](https://nextjs.org/) 16 (App Router) and [Fumadocs](https://fumadocs.dev/) on top of Tailwind CSS v4.
+<img width="1500" height="500" alt="emoteer-promocional" src="https://raw.githubusercontent.com/vyers/emoteer/main/assets/promotional-cover.png" />
+
+The [emoteer.vyers.dev](https://emoteer.vyers.dev) marketing site and documentation portal. Built with [Next.js](https://nextjs.org/) 16 (App Router) and [Fumadocs](https://fumadocs.dev/) on top of Tailwind CSS v4.
 
 Run the development server:
 

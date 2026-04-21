@@ -1,10 +1,10 @@
 {
   "name": "@emoteer/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic core for Emoteer: emoji loading, indexes, types, and shortcode utilities.",
   "license": "MIT",
   "author": "vyers <vyers.dev@gmail.com>",
-  "homepage": "https://github.com/vyers/emoteer#readme",
+  "homepage": "https://emoteer.vyers.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vyers/emoteer.git",

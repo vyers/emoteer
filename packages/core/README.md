@@ -1,6 +1,8 @@
 # @emoteer/core
 
-Framework-agnostic core for [Emoteer](https://github.com/vyers/emoteer): emoji loading, indexes, types, shortcode utilities, and a small SVG icon set.
+<img width="1500" height="500" alt="emoteer-promocional" src="https://raw.githubusercontent.com/vyers/emoteer/main/assets/promotional-cover.png" />
+
+Framework-agnostic core for [Emoteer](https://emoteer.vyers.dev): emoji loading, indexes, types, shortcode utilities, and a small SVG icon set.
 
 Zero UI. Zero framework. Use this directly when you're integrating emoji data into a non-React surface (Svelte, Vue, server-side pipelines, CLIs, tests) — or let [`@emoteer/react`](https://www.npmjs.com/package/@emoteer/react) consume it transitively.
 
