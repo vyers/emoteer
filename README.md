@@ -71,6 +71,25 @@ pnpm check-types
 pnpm lint
 ```
 
+## Roadmap
+
+In progress:
+
+- [ ] `@emoteer/svelte` — first non-React binding, built on Svelte 5 runes
+- [ ] Skin-tone selector (long-press), state stored per-provider
+- [ ] Recently used list with a pluggable storage adapter
+- [ ] Expanded recipes (chat composer, feedback widget, live-chat)
+
+Next:
+
+- [ ] `@emoteer/vue` — Vue 3 binding with the same primitive surface
+- [ ] Cloud sync for tenant-scoped custom emoji packs
+- [ ] Animated emoji support (APNG / WebP / Lottie)
+- [ ] Bundled picker themes (Slack-like, Discord-like, compact)
+- [ ] Full i18n for category names and screen reader labels
+
+See the [full roadmap](https://emoteer.vyers.dev/docs/roadmap) for shipped milestones, items under consideration, and anti-goals.
+
 ## License
 
 [MIT](./LICENSE) © vyers
