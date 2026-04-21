@@ -45,7 +45,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup && tailwindcss -i src/styles.css -o styles.css --minify",
+    "build": "tsup",
     "check-types": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0"
   },
@@ -64,10 +64,8 @@
   "devDependencies": {
     "@emoteer/eslint-config": "workspace:*",
     "@emoteer/typescript-config": "workspace:*",
-    "@tailwindcss/cli": "^4.2.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "tailwindcss": "^4.2.2",
     "tsup": "^8.4.0",
     "typescript": "5.9.2"
   },

@@ -1,5 +1,0 @@
-@import "@emoteer/theme/tailwind";
-@import "tailwindcss/theme" layer(theme);
-@import "tailwindcss/utilities" layer(utilities);
-
-@source "./";
