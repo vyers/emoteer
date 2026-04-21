@@ -1,6 +1,7 @@
 @import "./base.css";
 
 @theme {
+  /* ── Base colors ────────────────────────────────────────────────────────── */
   --color-em-primary: var(--em-primary);
   --color-em-bg: var(--em-bg);
   --color-em-fg: var(--em-fg);
@@ -9,8 +10,54 @@
   --color-em-active: var(--em-active);
   --color-em-muted: var(--em-muted);
   --color-em-shadow: var(--em-shadow);
-  --radius-em: var(--em-radius);
 
+  /* ── Per-slot backgrounds ───────────────────────────────────────────────── */
+  --color-em-bg-root: var(--em-bg-root);
+  --color-em-bg-input: var(--em-bg-input);
+  --color-em-bg-textarea: var(--em-bg-textarea);
+  --color-em-bg-autocomplete-input: var(--em-bg-autocomplete-input);
+  --color-em-bg-autocomplete-list: var(--em-bg-autocomplete-list);
+  --color-em-bg-reaction-item: var(--em-bg-reaction-item);
+  --color-em-bg-reaction-sticker: var(--em-bg-reaction-sticker);
+  --color-em-bg-reaction-chip: var(--em-bg-reaction-chip);
+
+  /* ── Per-slot border colors ─────────────────────────────────────────────── */
+  --color-em-border-root: var(--em-border-root);
+  --color-em-border-search: var(--em-border-search);
+  --color-em-border-preview: var(--em-border-preview);
+  --color-em-border-input: var(--em-border-input);
+  --color-em-border-textarea: var(--em-border-textarea);
+  --color-em-border-autocomplete-input: var(--em-border-autocomplete-input);
+  --color-em-border-autocomplete-list: var(--em-border-autocomplete-list);
+  --color-em-border-reaction-item: var(--em-border-reaction-item);
+  --color-em-border-reaction-sticker: var(--em-border-reaction-sticker);
+  --color-em-border-reaction-chip: var(--em-border-reaction-chip);
+
+  /* ── Per-slot border widths ─────────────────────────────────────────────── */
+  --border-width-em: var(--em-border-width);
+  --border-width-em-root: var(--em-border-width-root);
+  --border-width-em-search: var(--em-border-width-search);
+  --border-width-em-preview: var(--em-border-width-preview);
+  --border-width-em-input: var(--em-border-width-input);
+  --border-width-em-textarea: var(--em-border-width-textarea);
+  --border-width-em-autocomplete-input: var(--em-border-width-autocomplete-input);
+  --border-width-em-autocomplete-list: var(--em-border-width-autocomplete-list);
+  --border-width-em-reaction-item: var(--em-border-width-reaction-item);
+  --border-width-em-reaction-sticker: var(--em-border-width-reaction-sticker);
+  --border-width-em-reaction-chip: var(--em-border-width-reaction-chip);
+
+  /* ── Radius ─────────────────────────────────────────────────────────────── */
+  --radius-em: var(--em-radius);
+  --radius-em-root: var(--em-radius-root);
+  --radius-em-search: var(--em-radius-search);
+  --radius-em-input: var(--em-radius-input);
+  --radius-em-textarea: var(--em-radius-textarea);
+  --radius-em-autocomplete-input: var(--em-radius-autocomplete-input);
+  --radius-em-autocomplete-list: var(--em-radius-autocomplete-list);
+  --radius-em-reaction-item: var(--em-radius-reaction-item);
+  --radius-em-reaction-chip: var(--em-radius-reaction-chip);
+
+  /* ── Animation ──────────────────────────────────────────────────────────── */
   --animate-burst: burst 0.6s ease-out forwards;
 
   @keyframes burst {

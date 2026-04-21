@@ -8,6 +8,51 @@
   --em-active: var(--active, hsl(210 40% 91%));
   --em-muted: var(--muted, hsl(215.4 16.3% 46.9%)); /* slate-400 */
   --em-shadow: var(--shadow, hsl(0 0% 0%));
+
+  /* ── Per-slot radii — default to --em-radius, override to taste ─────────── */
+  --em-radius-root: var(--em-radius);
+  --em-radius-search: var(--em-radius);
+  --em-radius-input: var(--em-radius);
+  --em-radius-textarea: var(--em-radius);
+  --em-radius-autocomplete-input: var(--em-radius);
+  --em-radius-autocomplete-list: var(--em-radius);
+  --em-radius-reaction-item: var(--em-radius);
+  --em-radius-reaction-chip: var(--em-radius);
+
+  /* ── Per-slot backgrounds — default to --em-bg ──────────────────────────── */
+  --em-bg-root: var(--em-bg);
+  --em-bg-input: var(--em-bg);
+  --em-bg-textarea: var(--em-bg);
+  --em-bg-autocomplete-input: var(--em-bg);
+  --em-bg-autocomplete-list: var(--em-bg);
+  --em-bg-reaction-item: var(--em-bg);
+  --em-bg-reaction-sticker: var(--em-bg);
+  --em-bg-reaction-chip: var(--em-bg);
+
+  /* ── Per-slot border colors — default to --em-border ────────────────────── */
+  --em-border-root: var(--em-border);
+  --em-border-search: var(--em-border);
+  --em-border-preview: var(--em-border);
+  --em-border-input: var(--em-border);
+  --em-border-textarea: var(--em-border);
+  --em-border-autocomplete-input: var(--em-border);
+  --em-border-autocomplete-list: var(--em-border);
+  --em-border-reaction-item: var(--em-border);
+  --em-border-reaction-sticker: var(--em-border);
+  --em-border-reaction-chip: var(--em-border);
+
+  /* ── Border widths — global + per-slot (slot defaults preserve the base look) */
+  --em-border-width: 0.5px; /* hairline default for most form controls */
+  --em-border-width-root: 1px; /* outer container wants a more visible edge */
+  --em-border-width-search: var(--em-border-width);
+  --em-border-width-preview: var(--em-border-width);
+  --em-border-width-input: var(--em-border-width);
+  --em-border-width-textarea: var(--em-border-width);
+  --em-border-width-autocomplete-input: var(--em-border-width);
+  --em-border-width-autocomplete-list: 1px;
+  --em-border-width-reaction-item: var(--em-border-width);
+  --em-border-width-reaction-sticker: 2px; /* thicker by design for stickers */
+  --em-border-width-reaction-chip: 1px;
 }
 
 .dark {

@@ -1,7 +1,7 @@
 {
   "name": "@emoteer/theme",
   "version": "0.1.0",
-  "description": "Design tokens, base CSS and Tailwind v4 preset for Emoteer.",
+  "description": "Design tokens, base CSS and Tailwind v4 preset for emoteer.",
   "license": "MIT",
   "author": "vyers <vyers.dev@gmail.com>",
   "homepage": "https://github.com/vyers/emoteer#readme",

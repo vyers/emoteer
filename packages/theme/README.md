@@ -1,6 +1,6 @@
 # @emoteer/theme
 
-Design tokens, base CSS and Tailwind CSS v4 preset for [Emoteer](https://github.com/vyers/emoteer).
+Design tokens, base CSS and Tailwind CSS v4 preset for [emoteer](https://github.com/vyers/emoteer).
 
 **CSS-only.** This package ships no JavaScript — just two CSS entry points. It is normally consumed transitively via [`@emoteer/react`](https://www.npmjs.com/package/@emoteer/react); install it directly only if you want the raw tokens or the Tailwind preset without the components.
 
