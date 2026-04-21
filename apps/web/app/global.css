@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/black.css';
+@import 'fumadocs-ui/css/preset.css';
+@import '@emoteer/react/css';
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@keyframes emote-float {
+  0%, 100% { transform: translateY(0) rotate(var(--emote-rot, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--emote-rot, 0deg)); }
+}
+
+@keyframes slider-fill {
+  0%, 100% { width: 28%; }
+  50%      { width: 86%; }
+}
+
+@keyframes slider-thumb-pos {
+  0%, 100% { left: 28%; }
+  50%      { left: 86%; }
+}
+
+@keyframes slider-thumb-scale {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes chip-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+@keyframes emote-typed {
+  0%, 40%  { opacity: 1; transform: translateY(0); }
+  50%, 95% { opacity: 0; transform: translateY(-4px); }
+  100%     { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes emote-converted {
+  0%, 40%  { opacity: 0; transform: translateY(4px); }
+  50%, 95% { opacity: 1; transform: translateY(0); }
+  100%     { opacity: 0; transform: translateY(4px); }
+}
+
+@keyframes autocomplete-x {
+  0%, 14%   { transform: translateX(0); }
+  18%, 32%  { transform: translateX(44px); }
+  36%, 50%  { transform: translateX(88px); }
+  54%, 68%  { transform: translateX(132px); }
+  72%, 86%  { transform: translateX(176px); }
+  90%, 100% { transform: translateX(220px); }
+}
+
+@keyframes typing-rocket {
+  0%, 4%   { width: 0; opacity: 1; }
+  44%      { width: 17ch; opacity: 1; }
+  48%      { width: 17ch; opacity: 0; }
+  100%     { width: 0; opacity: 0; }
+}
+
+@keyframes typing-converted {
+  0%, 47%  { opacity: 0; }
+  52%, 92% { opacity: 1; }
+  100%     { opacity: 0; }
+}
+
+@keyframes caret-blink {
+  0%, 50%   { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+html>body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+:root {
+  --em-primary: hsl(85, 75%, 36%);
+  --em-radius: 24px;
+  --em-radius-search: 14px;
+}
+
+.dark {
+  --em-primary: hsl(85, 80%, 74%);
+}
+
+@theme inline {
+  --font-sans: "Manrope", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+
+
+  --color-fd-primary: hsl(85, 75%, 36%);
+  --color-fd-primary-foreground: hsl(0, 0%, 98%);
+}
+
+.dark {
+  --color-fd-primary: hsl(85, 80%, 74%);
+  --color-fd-primary-foreground: hsl(0, 0%, 9%);
+}
