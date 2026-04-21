@@ -1,0 +1,99 @@
+---
+title: EmoteList
+description: Searchable, virtualized emoji picker with tabs, keyboard navigation and preview
+---
+
+`EmoteList` is the compound picker. It ships a search input, category tabs, a virtualized grid and a preview panel. Every slot is an independent component — use them all, mix and match, or wrap them with your own markup.
+
+<EmoteListPreview />
+
+## Anatomy
+
+```tsx
+<EmoteList.Root onSelect={(emote) => ...}>
+  <EmoteList.Search />
+  <EmoteList.Tabs />
+  <EmoteList.Grid />
+  <EmoteList.Preview />
+</EmoteList.Root>
+```
+
+## Basic usage
+
+```tsx title="components/picker.tsx"
+import { EmoteList } from '@emoteer/react';
+
+export function Picker() {
+  return (
+    <EmoteList.Root
+      onSelect={(emote) => console.log(emote.unicode)}
+      className="w-80 rounded-3xl border"
+    >
+      <EmoteList.Search />
+      <EmoteList.Tabs />
+      <EmoteList.Grid height={300} />
+      <EmoteList.Preview />
+    </EmoteList.Root>
+  );
+}
+```
+
+## Slots
+
+| Slot | Description |
+| --- | --- |
+| `Root` | Context provider. Handles selection and keyboard navigation. |
+| `Search` | Search input with debounced matching. |
+| `Tabs` | Category tabs. Switches the visible group. |
+| `Grid` | Virtualized emoji grid. |
+| `Preview` | Shows the active emoji and its shortcode. |
+
+## Props
+
+### `EmoteList.Root`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `onSelect` | `(emote: NativeEmoji) => void` | Called when the user selects an emoji. |
+| `className` | `string` | Forwarded to the outer container. |
+
+### `EmoteList.Search`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the outer container. |
+
+### `EmoteList.Tabs`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `display` | `"emoji" \| "label"` | `"emoji"` | Show emoji icons or text labels. |
+| `className` | `string` | — | Forwarded to the outer container. |
+
+### `EmoteList.Grid`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `height` | `number` | `280` | Pixel height of the scrollable area. |
+
+### `EmoteList.Preview`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the outer container. |
+
+The preview slot shows the currently hovered emoji with its shortcode, a copy-to-clipboard button and a favorite toggle. Favorites are persisted to `localStorage` under `emoteer-favorites` and surface automatically in the grid as a dedicated tab.
+
+## Convenience export
+
+`EmoteListPicker` wires every slot together with the default layout. Use it when you want a full picker without composing the pieces yourself.
+
+```tsx title="components/picker.tsx"
+import { EmoteListPicker } from '@emoteer/react';
+
+<EmoteListPicker onSelect={(emote) => console.log(emote.unicode)} />;
+```
+
+## Styling
+
+Every slot accepts a `className` that extends the default styles. Slots use CSS variables that fall back to Tailwind tokens — override them in your own CSS or Tailwind theme.

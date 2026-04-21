@@ -1,0 +1,109 @@
+---
+title: API reference
+description: Public types and constants exported from the library
+---
+
+Every public type Emoteer exposes. Imported from either `@emoteer/core` (framework-agnostic) or `@emoteer/react` (re-exported for convenience).
+
+## NativeEmoji
+
+The canonical shape of a Unicode emoji in Emoteer.
+
+```ts title="@emoteer/core"
+type NativeEmoji = {
+  unicode: string;
+  shortcodes: string[];
+  keywords: string[];
+  category: string;
+  skinTones?: string[];
+};
+```
+
+## LocalEmote
+
+A custom emoji supplied through `EmoteProvider`. Can be a unicode character or an external image.
+
+```ts title="@emoteer/core"
+type LocalEmote = {
+  shortcode: string;
+  unicode?: string;
+  image?: string;
+  keywords?: string[];
+  category?: string;
+};
+```
+
+## Reaction
+
+The shape consumed by `ReactionCounter`.
+
+```ts title="@emoteer/react"
+type Reaction = {
+  emoji: string;
+  count: number;
+  active: boolean;
+};
+```
+
+## Locale
+
+Controls which shortcode dictionary is loaded.
+
+```ts title="@emoteer/core"
+type SupportedLocale =
+  | 'en' | 'es' | 'fr' | 'de'
+  | 'pt' | 'it' | 'ja' | 'zh';
+
+type Locale =
+  | SupportedLocale
+  | {
+      id: string;
+      shortcodes: Record<string, string>;
+    };
+```
+
+## CloudConfig
+
+Configuration for fetching emoji data at runtime.
+
+```ts title="@emoteer/core"
+type CloudConfig = {
+  url: string;
+  revalidate?: number;
+  headers?: Record<string, string>;
+};
+```
+
+## EmoteProviderProps
+
+Props accepted by `EmoteProvider`.
+
+```ts title="@emoteer/react"
+type EmoteProviderProps = {
+  children: React.ReactNode;
+  locale?: Locale;
+  customEmotes?: LocalEmote[];
+  includeDefaults?: boolean;
+  cloud?: CloudConfig;
+};
+```
+
+## Imports
+
+```ts title="your-app.ts"
+// Framework-agnostic — safe in any environment
+import type {
+  NativeEmoji,
+  LocalEmote,
+  Reaction,
+  Locale,
+  SupportedLocale,
+  CloudConfig,
+} from '@emoteer/core';
+
+// Re-exported from the React binding
+import type {
+  NativeEmoji,
+  EmoteProviderProps,
+} from '@emoteer/react';
+```

@@ -1,0 +1,88 @@
+---
+title: Chat composer
+description: A message input with shortcode autocomplete and an emoji picker button
+---
+
+A production-ready chat composer combines three primitives: `EmoteTextArea` for the message body, `EmoteAutocomplete` for inline `:shortcode` suggestions, and `ReactionButton.Popover` wrapping an `EmoteList` for the picker button.
+
+## The pattern
+
+```tsx title="components/chat-composer.tsx"
+import {
+  EmoteAutocomplete,
+  EmoteList,
+  EmoteTextArea,
+  ReactionButton,
+} from '@emoteer/react';
+import { useState } from 'react';
+
+export function ChatComposer({
+  onSend,
+}: {
+  onSend: (message: string) => void;
+}) {
+  const [value, setValue] = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const insertAtCursor = (unicode: string) => {
+    setValue((prev) => `${prev}${unicode}`);
+    setPickerOpen(false);
+  };
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!value.trim()) return;
+        onSend(value);
+        setValue('');
+      }}
+      className="flex items-end gap-2 rounded-2xl border p-2"
+    >
+      <EmoteAutocomplete.Root onSelect={(_, next) => setValue(next)}>
+        <EmoteTextArea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Write a message. Type :grin for suggestions."
+          rows={2}
+          className="flex-1 resize-none bg-transparent outline-none"
+        />
+        <EmoteAutocomplete.Content>
+          <EmoteAutocomplete.List />
+        </EmoteAutocomplete.Content>
+      </EmoteAutocomplete.Root>
+
+      <ReactionButton.Popover
+        open={pickerOpen}
+        onOpenChange={(d) => setPickerOpen(d.open)}
+      >
+        <ReactionButton.Trigger>
+          <ReactionButton.Plus />
+        </ReactionButton.Trigger>
+        <ReactionButton.Content>
+          <EmoteList.Root onSelect={(e) => insertAtCursor(e.unicode)}>
+            <EmoteList.Search />
+            <EmoteList.Tabs />
+            <EmoteList.Grid />
+          </EmoteList.Root>
+        </ReactionButton.Content>
+      </ReactionButton.Popover>
+
+      <button type="submit" className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold">
+        Send
+      </button>
+    </form>
+  );
+}
+```
+
+## What it does
+
+- `EmoteTextArea` auto-converts any `:shortcode:` as the user types a space.
+- `EmoteAutocomplete` wraps the textarea and surfaces suggestions when the user types `:grin` (no trailing space required).
+- The picker button opens a full `EmoteList`. Selecting an emoji inserts it at the current cursor position and closes the popover.
+
+## Notes
+
+- Insertion position in the example is the end of the string. For true "at-cursor" behavior, track `selectionStart` on the textarea and splice the unicode into `value` at that index.
+- The form handles Enter-to-send; Shift+Enter keeps the newline behavior of the textarea.

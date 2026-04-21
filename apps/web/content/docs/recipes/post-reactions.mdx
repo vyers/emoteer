@@ -1,0 +1,90 @@
+---
+title: Post reactions
+description: A reaction bar with counts, toggle state and an add-reaction picker
+---
+
+A social-style reaction row: existing reactions show their counts and active state, an "add" button opens a picker, and the current user can only toggle their own reactions.
+
+## The pattern
+
+```tsx title="components/post-reactions.tsx"
+import {
+  EmoteList,
+  ReactionButton,
+  ReactionCounter,
+  type Reaction,
+} from '@emoteer/react';
+import { useState } from 'react';
+
+type Props = {
+  postId: string;
+  initial: Reaction[];
+  onChange: (postId: string, reactions: Reaction[]) => void;
+};
+
+export function PostReactions({ postId, initial, onChange }: Props) {
+  const [reactions, setReactions] = useState(initial);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const update = (next: Reaction[]) => {
+    setReactions(next);
+    onChange(postId, next);
+  };
+
+  const handleToggle = (emoji: string, active: boolean) => {
+    const next = reactions
+      .map((r) =>
+        r.emoji === emoji
+          ? { ...r, active, count: r.count + (active ? 1 : -1) }
+          : r,
+      )
+      .filter((r) => r.count > 0);
+    update(next);
+  };
+
+  const handleAdd = (emoji: string) => {
+    const existing = reactions.find((r) => r.emoji === emoji);
+    if (existing) {
+      handleToggle(emoji, !existing.active);
+    } else {
+      update([...reactions, { emoji, count: 1, active: true }]);
+    }
+    setPickerOpen(false);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <ReactionCounter reactions={reactions} onToggle={handleToggle} />
+
+      <ReactionButton.Popover
+        open={pickerOpen}
+        onOpenChange={(d) => setPickerOpen(d.open)}
+      >
+        <ReactionButton.Trigger>
+          <button className="rounded-full border border-dashed px-3 py-1.5 text-xs text-muted-foreground">
+            + Add
+          </button>
+        </ReactionButton.Trigger>
+        <ReactionButton.Content>
+          <EmoteList.Root onSelect={(e) => handleAdd(e.unicode)}>
+            <EmoteList.Search />
+            <EmoteList.Tabs />
+            <EmoteList.Grid />
+          </EmoteList.Root>
+        </ReactionButton.Content>
+      </ReactionButton.Popover>
+    </div>
+  );
+}
+```
+
+## What it does
+
+- Toggling an existing reaction bumps or decrements its count.
+- Reactions with `count === 0` are dropped from the list.
+- Adding a reaction through the picker: if the user had already reacted with that emoji, it toggles; otherwise a new reaction is pushed in as active.
+- `onChange` is called on every mutation so the parent can persist to a backend.
+
+## Backend integration
+
+For optimistic updates, wrap `update` in a mutation. Roll back the local state in `onError` and invalidate the post query on success. The component stays the same — all async concerns live outside it.

@@ -1,0 +1,47 @@
+---
+title: Accessibility
+description: Keyboard, ARIA and motion preferences across every primitive
+---
+
+Accessibility is a first-class concern in Emoteer. Every primitive ships with keyboard support, ARIA semantics and motion preferences out of the box.
+
+## Keyboard
+
+| Component | Key | Action |
+| --- | --- | --- |
+| EmoteList | `↑ ↓ ← →` | Move focus between emojis |
+| EmoteList | `Tab` | Switch between slots (search, tabs, grid) |
+| EmoteList | `Enter` | Select the focused emoji |
+| EmoteList | `Esc` | Clear search / close popover |
+| EmoteAutocomplete | `↑ ↓` | Move through suggestions |
+| EmoteAutocomplete | `Tab` / `Enter` | Insert the highlighted emoji |
+| EmoteAutocomplete | `Esc` | Dismiss suggestions |
+| ReactionSlider | `← →` | Step by `step` |
+| ReactionSlider | `Home` / `End` | Jump to min / max |
+| ReactionSlider | `PageUp` / `PageDown` | Move by 10× step |
+| ReactionButton | `Space` / `Enter` | Tap the active sticker |
+
+## ARIA
+
+- `EmoteList.Grid` uses `role="listbox"` with `aria-activedescendant` so screen readers announce the focused emoji.
+- `EmoteList.Search` uses a proper `role="searchbox"` and is linked to the grid via `aria-controls`.
+- `EmoteAutocomplete.List` exposes `role="listbox"` with `aria-selected` on each option; the trigger input has `aria-expanded` and `aria-controls`.
+- `ReactionSlider.Root` renders as `role="slider"` with `aria-valuemin`, `aria-valuemax` and `aria-valuenow`.
+- `ReactionCounter` chips are buttons with `aria-pressed` reflecting active state.
+
+## Focus management
+
+- Opening a popover moves focus into it; closing returns focus to the trigger.
+- Focus is visible on every interactive element. Do not override `:focus-visible` outlines in your overrides.
+
+## Reduced motion
+
+All animations — burst effects, thumb scaling, list fades — short-circuit to instant when `prefers-reduced-motion: reduce` is set. No configuration required.
+
+## Color contrast
+
+The default theme ships with WCAG AA contrast on all text and interactive elements in both light and dark modes. If you override the theme variables, run the result through a contrast checker.
+
+## Internationalization
+
+Shortcode dictionaries ship for 8 locales and can be extended. See [Custom emojis](/docs/guides/custom-emojis#localizing-shortcodes).

@@ -1,0 +1,64 @@
+---
+title: Roadmap
+description: What ships today, what's being built, and what's on the horizon
+---
+
+Emoteer is developed in the open. This page reflects the current plan for the next few releases. Dates are intentionally absent — milestones land when they're ready.
+
+## Shipped
+
+Everything below is released, documented and stable.
+
+- `@emoteer/core` — data, search, shortcodes and state machines
+- `@emoteer/react` — compound primitives with Tailwind-ready defaults
+- **EmoteList** — searchable, virtualized picker with tabs and preview
+- **EmoteAutocomplete** — inline shortcode suggestions
+- **EmoteInput** & **EmoteTextArea** — `:shortcode:` → unicode conversion
+- **ReactionButton** — stickers, quick bar and picker popover
+- **ReactionCounter** — stateful reaction chips with counts
+- **ReactionSlider** — emoji intensity slider (0–100)
+- Full Unicode emoji dataset
+- 8 bundled locales (`en`, `es`, `fr`, `de`, `pt`, `it`, `ja`, `zh`)
+- Custom emoji and cloud dataset support
+- WCAG AA contrast on the default theme, `prefers-reduced-motion` across all animations
+
+## In progress
+
+Active work. PRs and design threads are on GitHub.
+
+- **`@emoteer/svelte`** — first non-React binding. Same compound surface, built on Svelte 5 runes.
+- **Skin-tone selector** — long-press on an emoji opens the tone picker, state stored per-provider.
+- **Recently used** — per-user MRU list persisted via a pluggable storage adapter.
+- **Expanded recipes** — comment threads, feedback widgets, live-chat composers.
+
+## Next
+
+Planned but not yet started.
+
+- **`@emoteer/vue`** — Vue 3 binding with the same primitive surface.
+- **Custom emoji cloud sync** — tenant-scoped emoji packs fetched via `CloudConfig`.
+- **Animated emoji support** — APNG / WebP / Lottie-backed custom emojis.
+- **Picker themes** — bundled presets (slack-like, discord-like, compact).
+- **i18n for every string** — localize category names and screen reader labels.
+
+## Considering
+
+Ideas on the table. Feedback welcome in GitHub discussions.
+
+- **`@emoteer/solid`** — Solid binding.
+- **Mobile gesture refinements** — swipe between tabs, haptics on reaction burst.
+- **Emoji usage analytics** — opt-in hook for tracking which emojis users pick.
+- **Keyboard-only variant** — zero-mouse navigation for power users.
+- **Server components adapter** — RSC-friendly wrappers that hydrate progressively.
+
+## Anti-goals
+
+Things we've deliberately chosen not to build.
+
+- **Animated GIF library** — Emoteer focuses on emojis; GIFs are a different product.
+- **Messaging layer** — no chat/thread state management, only UI primitives.
+- **Authentication / user profiles** — user state lives in your app, not here.
+
+## Contribute
+
+Found a bug, want a feature, or have a framework request? Open an issue or start a discussion — both channels are linked from the [GitHub repo](https://github.com/vyers/emoteer).

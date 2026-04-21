@@ -1,0 +1,52 @@
+---
+title: Concepts
+description: The mental model behind the core, bindings and compound primitives
+---
+
+Emoteer is structured around three pieces: the **core**, one **binding** per framework, and a set of **compound primitives** that you assemble into UI.
+
+## Core
+
+`@emoteer/core` is framework-agnostic. It owns the emoji dataset, the shortcode index, the search algorithm, and every state machine (picker navigation, autocomplete triggers, input conversion).
+
+Nothing in the core imports React, Svelte, or Vue. You can import it in workers, SSR runtimes, tests, or any other JS environment.
+
+## Bindings
+
+A binding (`@emoteer/react`, `@emoteer/svelte`, `@emoteer/vue`) is a thin layer that hooks the core into a framework's reactivity system. Bindings:
+
+- Wire state machines to hooks / stores / composables
+- Expose compound components with typed props
+- Ship a small, optional stylesheet for defaults
+
+## The provider
+
+Every app mounts a single `EmoteProvider` near the root. It holds the shared dataset and configuration. Components read from the provider via framework-native hooks.
+
+```tsx title="app/layout.tsx"
+<EmoteProvider locale="en" customEmotes={[...]}>
+  {children}
+</EmoteProvider>
+```
+
+All primitives automatically consume the provider — you never pass the dataset to individual components.
+
+## Compound primitives
+
+Every high-level component is a **compound** made of independent slots. For example, `EmoteList` is:
+
+- `EmoteList.Root` — context + keyboard handling
+- `EmoteList.Search` — filter input
+- `EmoteList.Tabs` — category switcher
+- `EmoteList.Grid` — virtualized grid
+- `EmoteList.Preview` — active emoji preview
+
+You can render any subset, in any order, with any markup in between. If you need to replace a slot entirely, the underlying hooks are exported too.
+
+## Headless vs styled
+
+Primitives are headless by default. Importing `@emoteer/react/css` opts into the bundled styles. All classes are namespaced and can be overridden through CSS variables or per-slot `className` merging.
+
+## State ownership
+
+Selection state (active emoji, intensity value, reactions list) lives in your app. Emoteer provides callbacks (`onSelect`, `onChange`, `onToggle`) and you wire them to your own state — `useState`, Redux, Jotai, server state, whatever. The library never holds user data.

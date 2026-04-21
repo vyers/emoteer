@@ -1,0 +1,62 @@
+---
+title: ReactionCounter
+description: Grouped reaction chips with counts, active states and toggle callbacks
+---
+
+`ReactionCounter` renders a row of emoji chips with counts. Each chip can be in an active or inactive state and emits a toggle event when the user taps it.
+
+<ReactionCounterPreview />
+
+## Basic usage
+
+```tsx title="components/post-reactions.tsx"
+import { ReactionCounter, type Reaction } from '@emoteer/react';
+import { useState } from 'react';
+
+const INITIAL: Reaction[] = [
+  { emoji: '👍', count: 12, active: false },
+  { emoji: '❤️', count: 5, active: true },
+  { emoji: '🎉', count: 8, active: false },
+  { emoji: '😎', count: 2, active: false },
+  { emoji: '👾', count: 4, active: false },
+  { emoji: '🎀', count: 10, active: false },
+];
+
+export function PostReactions() {
+  const [reactions, setReactions] = useState(INITIAL);
+
+  const handleToggle = (emoji: string, active: boolean) => {
+    setReactions((prev) =>
+      prev.map((r) =>
+        r.emoji === emoji
+          ? { ...r, active, count: r.count + (active ? 1 : -1) }
+          : r,
+      ),
+    );
+  };
+
+  return <ReactionCounter reactions={reactions} onToggle={handleToggle} />;
+}
+```
+
+## Props
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `reactions` | `Reaction[]` | Ordered list of reactions to render. |
+| `onToggle` | `(emoji: string, nextActive: boolean) => void` | Called when a chip is tapped. The second argument is the new active state. |
+| `className` | `string` | Forwarded to the outer container. |
+
+## The `Reaction` type
+
+```ts title="types.ts"
+type Reaction = {
+  emoji: string;
+  count: number;
+  active: boolean;
+};
+```
+
+## Empty state
+
+If `reactions` is empty, nothing is rendered. Compose an "add reaction" button alongside the component yourself — the API is intentionally minimal so you can place the trigger wherever fits your layout.

@@ -1,0 +1,93 @@
+---
+title: EmoteAutocomplete
+description: "Inline shortcode suggestions triggered by typing `:` in any input"
+---
+
+`EmoteAutocomplete` wraps any input and triggers a suggestion list when the user types `:shortcode`. Arrow keys, Tab and Enter select; Escape dismisses.
+
+<EmoteAutocompletePreview />
+
+## Anatomy
+
+```tsx
+<EmoteAutocomplete.Root onSelect={...}>
+  <EmoteAutocomplete.Input />
+  <EmoteAutocomplete.Content>
+    <EmoteAutocomplete.List />
+  </EmoteAutocomplete.Content>
+</EmoteAutocomplete.Root>
+```
+
+## Basic usage
+
+```tsx title="components/composer.tsx"
+import { EmoteAutocomplete } from '@emoteer/react';
+import { useState } from 'react';
+
+export function Composer() {
+  const [value, setValue] = useState('');
+
+  return (
+    <EmoteAutocomplete.Root onSelect={(_, next) => setValue(next)}>
+      <EmoteAutocomplete.Input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Type :grin for suggestions…"
+      />
+      <EmoteAutocomplete.Content>
+        <EmoteAutocomplete.List />
+      </EmoteAutocomplete.Content>
+    </EmoteAutocomplete.Root>
+  );
+}
+```
+
+## Slots
+
+| Slot | Description |
+| --- | --- |
+| `Root` | Context provider. Handles keyboard and selection. |
+| `Input` | Text input that emits change events and triggers suggestions. |
+| `Content` | Popover container positioned below the input. |
+| `List` | Suggestion list. Renders matched emojis with shortcodes. |
+
+## Props
+
+### `EmoteAutocomplete.Root`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `onSelect` | `(emote: NativeEmoji, nextValue: string) => void` | Called when a suggestion is chosen. The second argument is the final input value with the emoji inserted. |
+
+### `EmoteAutocomplete.Input`
+
+Extends the standard `<input>` element. Controlled via `value` and `onChange`. Any native `<input>` prop is forwarded.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the `<input>` element. |
+| ...native | — | All standard `<input>` attributes. |
+
+### `EmoteAutocomplete.Content`
+
+Portal-rendered floating container. Only mounts while the suggestion list is open.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `children` | `ReactNode` | Typically an `EmoteAutocomplete.List`. |
+| `className` | `string` | Forwarded to the floating element. |
+
+### `EmoteAutocomplete.List`
+
+Renders the matched suggestions.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the listbox element. |
+
+## Trigger behavior
+
+- Typing `:` opens the suggestion list.
+- Matches are based on shortcode prefix and category metadata.
+- `Tab` / `Enter` inserts the selected emoji; `:shortcode:` in the text is replaced with the unicode character.
+- `Escape` closes the list without inserting.

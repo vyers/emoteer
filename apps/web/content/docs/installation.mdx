@@ -1,0 +1,85 @@
+---
+title: Installation
+description: Add emoteer to your project and import the default styles
+---
+
+Emoteer ships as a set of packages published under the `@emoteer` scope. The React bindings are the main entrypoint for most projects.
+
+## Requirements
+
+- **React** 19 or later (peer dependency)
+- **Node.js** 20 or later for tooling
+- A bundler that supports ES modules (Next.js, Vite, Remix, Astro…)
+
+## Install the package
+
+```bash
+pnpm add @emoteer/react
+```
+
+```bash
+npm install @emoteer/react
+```
+
+```bash
+yarn add @emoteer/react
+```
+
+```bash
+bun add @emoteer/react
+```
+
+## Import the default styles
+
+Emoteer ships a single CSS file with Tailwind-compatible defaults. Import it once at the root of your app:
+
+```ts title="app/layout.tsx"
+import '@emoteer/react/css';
+```
+
+Every class is prefixed and safe to override from your own styles.
+
+## Wrap your app in the provider
+
+The `EmoteProvider` sets up shared state and the emoji dataset. Mount it once, near the root of the tree.
+
+```tsx title="app/layout.tsx"
+import { EmoteProvider } from '@emoteer/react';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <EmoteProvider>
+      {children}
+    </EmoteProvider>
+  );
+}
+```
+
+## Your first picker
+
+Once the provider is in place, any primitive can be rendered anywhere in the tree.
+
+```tsx title="components/picker.tsx"
+import { EmoteList } from '@emoteer/react';
+
+export function Picker() {
+  return (
+    <EmoteList.Root onSelect={(emote) => console.log(emote.unicode)}>
+      <EmoteList.Search />
+      <EmoteList.Tabs />
+      <EmoteList.Grid />
+      <EmoteList.Preview />
+    </EmoteList.Root>
+  );
+}
+```
+
+That's it — you now have a full-featured emoji picker with search, tabs, a virtualized grid and a preview panel.
+
+## Next steps
+
+<Cards>
+  <Card title="Concepts" description="Understand the mental model: core, bindings and the provider." href="/docs/concepts" />
+  <Card title="Components" description="Explore every primitive with ready-to-copy examples." href="/docs/components/emote-list" />
+  <Card title="Theming" description="Override defaults, build a custom theme, plug Tailwind tokens." href="/docs/guides/theming" />
+</Cards>

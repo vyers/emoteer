@@ -1,0 +1,80 @@
+---
+title: SSR & Server Components
+description: Rendering Emoteer inside Next.js, Remix and other server-rendered environments
+---
+
+Emoteer is fully SSR-safe. All primitives render to static markup on the server and hydrate on the client. In Next.js App Router specifically, the interactive primitives are client components — mark any page that uses them with `"use client"`.
+
+## The client boundary
+
+Every compound primitive manages keyboard, focus, popover positioning or inline conversions — behaviors that require the browser. Keep them below a client component boundary.
+
+```tsx title="app/chat/composer.tsx"
+'use client';
+
+import { EmoteTextArea } from '@emoteer/react';
+import { useState } from 'react';
+
+export function Composer() {
+  const [value, setValue] = useState('');
+  return (
+    <EmoteTextArea value={value} onChange={(e) => setValue(e.target.value)} />
+  );
+}
+```
+
+```tsx title="app/chat/page.tsx"
+// Server component — no "use client"
+import { Composer } from './composer';
+
+export default function Page() {
+  return (
+    <section>
+      <h1>Chat</h1>
+      <Composer />
+    </section>
+  );
+}
+```
+
+## The provider is a client component
+
+`EmoteProvider` owns the dataset and state machines, so it must render on the client. Mount it in a `use-client` layout file:
+
+```tsx title="app/providers.tsx"
+'use client';
+
+import { EmoteProvider } from '@emoteer/react';
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return <EmoteProvider>{children}</EmoteProvider>;
+}
+```
+
+```tsx title="app/layout.tsx"
+import { Providers } from './providers';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+## Streaming and Suspense
+
+All primitives render synchronously and emit no Suspense boundaries. They are safe inside streaming layouts and PPR.
+
+## Remix and other meta-frameworks
+
+The same pattern applies: keep interactive primitives in client-only modules. In Remix, any module importing `@emoteer/react` can be imported normally from routes since Remix hydrates everything by default.
+
+## Avoid these
+
+- Calling `useEmoteContext` from a server component — it will throw.
+- Rendering `EmoteList` on the server only — the virtualized grid needs client measurements.
+- Reading from `navigator` or `window` above the provider — the provider guards against SSR and only runs browser APIs after hydration.

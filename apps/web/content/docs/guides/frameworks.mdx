@@ -1,0 +1,46 @@
+---
+title: Frameworks
+description: Where each framework binding stands and how the shared core works
+---
+
+Emoteer is built so the same data, search and state live in a framework-agnostic core. Each framework binding is a thin layer on top.
+
+## Current status
+
+| Binding | Package | Status |
+| --- | --- | --- |
+| React | `@emoteer/react` | stable |
+| Svelte | `@emoteer/svelte` | soon |
+| Vue | `@emoteer/vue` | soon |
+
+## The shared core
+
+`@emoteer/core` exports everything framework bindings reuse:
+
+- **Emoji dataset** — full Unicode catalog, category metadata, skin-tone variants
+- **Shortcode index** — fast prefix match and keyword search
+- **State machines** — picker navigation, autocomplete triggers, input conversion
+
+You can use it directly in framework-agnostic environments (workers, server-side rendering, CLI tools):
+
+```ts title="worker.ts"
+import { createPickerMachine, searchEmotes } from '@emoteer/core';
+
+const results = searchEmotes({ query: 'grin', limit: 10 });
+```
+
+## React
+
+Currently the flagship binding. Everything you see in [Components](/docs/components/emote-list) is available today.
+
+## Svelte
+
+The Svelte binding is under active development. Target surface is identical to React — compound primitives, typed props, and the same styled defaults.
+
+## Vue
+
+The Vue binding will expose the same primitives as composable tags and template slots. The internal state machines are already framework-agnostic so the work is mostly DX and template syntax.
+
+## Requesting a framework
+
+Open an issue with the framework name and a short description of the use case. Bindings with real consumers get prioritized.

@@ -1,0 +1,160 @@
+---
+title: Theming
+description: Override defaults, plug Tailwind tokens, build a custom theme
+---
+
+Emoteer ships a set of styled defaults that you can keep, partially override, or replace entirely. The theme is built on CSS custom properties so it plays nicely with every styling stack — Tailwind, CSS modules, vanilla CSS or styled components.
+
+## Using the default theme
+
+Import the stylesheet once:
+
+```ts title="app/layout.tsx"
+import '@emoteer/react/css';
+```
+
+The defaults use a set of CSS variables, prefixed with `--em-`:
+
+| Variable | Purpose | Light default | Dark default |
+| --- | --- | --- | --- |
+| `--em-bg` | Surface background | `hsl(0 0% 100%)` | `hsl(0 0% 3.9%)` |
+| `--em-fg` | Foreground / text color | `hsl(0 0% 9%)` | `hsl(0 0% 98%)` |
+| `--em-muted` | Secondary text | `hsl(215 16% 47%)` | `hsl(0 0% 55%)` |
+| `--em-border` | Hairlines, separators, outlines | `hsl(0 0% 85%)` | `hsl(0 0% 20%)` |
+| `--em-primary` | Primary interactive color (focus rings, selection, active chips) | `hsl(0 0% 87%)` | inherits |
+| `--em-hover` | Subtle hover background | `hsl(210 40% 96%)` | `hsl(0 0% 8%)` |
+| `--em-active` | Active / pressed background | `hsl(210 40% 91%)` | `hsl(0 0% 15%)` |
+| `--em-shadow` | Drop shadow base color | `hsl(0 0% 0%)` | inherits |
+| `--em-radius` | Base border radius | `0.5rem` | inherits |
+
+Each variable falls back to a matching token from your app if you define one — the chain is `--em-<name>` → `--<name>` → hardcoded default. For example, setting `--primary` in your app automatically propagates to `--em-primary`.
+
+## Overriding variables
+
+Scope overrides to any ancestor — the nearest declaration wins.
+
+```css title="app/globals.css"
+:root {
+  --em-primary: hsl(85, 75%, 40%);
+  --em-radius: 1rem;
+}
+
+.dark {
+  --em-primary: hsl(85, 80%, 70%);
+}
+```
+
+## Plugging Tailwind tokens
+
+Map Emoteer variables to the tokens from your own Tailwind theme. Works with both v3 and v4.
+
+```css title="app/globals.css"
+:root {
+  --em-primary: var(--color-primary);
+  --em-border: var(--color-border);
+  --em-bg: var(--color-background);
+  --em-fg: var(--color-foreground);
+  --em-muted: var(--color-muted-foreground);
+  --em-hover: var(--color-accent);
+  --em-active: var(--color-secondary);
+}
+```
+
+## Per-slot overrides
+
+For the visual properties where it matters — **radius**, **background**, **border color** — each slot exposes its own CSS variable that falls back to the matching global (`--em-radius`, `--em-bg`, `--em-border`). Override one slot without disturbing the rest, from pure CSS, without Tailwind.
+
+### Radius
+
+| Variable | Slot |
+| --- | --- |
+| `--em-radius-root` | `EmoteList.Root` outer container |
+| `--em-radius-search` | `EmoteList.Search` input |
+| `--em-radius-input` | `EmoteInput` |
+| `--em-radius-textarea` | `EmoteTextArea` |
+| `--em-radius-autocomplete-input` | `EmoteAutocomplete.Input` |
+| `--em-radius-autocomplete-list` | `EmoteAutocomplete.List` popover |
+| `--em-radius-reaction-item` | `ReactionButton.Item` / `ReactionButton.Plus` |
+| `--em-radius-reaction-chip` | `ReactionCounter` chips |
+
+### Background
+
+| Variable | Slot |
+| --- | --- |
+| `--em-bg-root` | `EmoteList.Root` |
+| `--em-bg-input` | `EmoteInput` |
+| `--em-bg-textarea` | `EmoteTextArea` |
+| `--em-bg-autocomplete-input` | `EmoteAutocomplete.Input` |
+| `--em-bg-autocomplete-list` | `EmoteAutocomplete.List` popover |
+| `--em-bg-reaction-item` | `ReactionButton.Item` / `ReactionButton.Plus` |
+| `--em-bg-reaction-sticker` | `ReactionButton.Sticker` |
+| `--em-bg-reaction-chip` | `ReactionCounter` chip (inactive) |
+
+### Border color
+
+| Variable | Slot |
+| --- | --- |
+| `--em-border-root` | `EmoteList.Root` |
+| `--em-border-search` | `EmoteList.Search` |
+| `--em-border-preview` | `EmoteList.Preview` top separator |
+| `--em-border-input` | `EmoteInput` |
+| `--em-border-textarea` | `EmoteTextArea` |
+| `--em-border-autocomplete-input` | `EmoteAutocomplete.Input` |
+| `--em-border-autocomplete-list` | `EmoteAutocomplete.List` popover |
+| `--em-border-reaction-item` | `ReactionButton.Item` / `ReactionButton.Plus` |
+| `--em-border-reaction-sticker` | `ReactionButton.Sticker` |
+| `--em-border-reaction-chip` | `ReactionCounter` chip (inactive) |
+
+### Border width
+
+Slot widths preserve the default hairline look (most at `0.5px`). Override `--em-border-width` to bump every hairline at once, or set a specific slot individually.
+
+| Variable | Slot | Default |
+| --- | --- | --- |
+| `--em-border-width` | global hairline fallback | `0.5px` |
+| `--em-border-width-root` | `EmoteList.Root` | `1px` |
+| `--em-border-width-search` | `EmoteList.Search` | inherits |
+| `--em-border-width-preview` | `EmoteList.Preview` | inherits |
+| `--em-border-width-input` | `EmoteInput` | inherits |
+| `--em-border-width-textarea` | `EmoteTextArea` | inherits |
+| `--em-border-width-autocomplete-input` | `EmoteAutocomplete.Input` | inherits |
+| `--em-border-width-autocomplete-list` | `EmoteAutocomplete.List` | `1px` |
+| `--em-border-width-reaction-item` | `ReactionButton.Item` / `.Plus` | inherits |
+| `--em-border-width-reaction-sticker` | `ReactionButton.Sticker` | `2px` |
+| `--em-border-width-reaction-chip` | `ReactionCounter` chip | `1px` |
+
+### Example — mix globals and per-slot overrides
+
+```css title="app/globals.css"
+:root {
+  /* Base */
+  --em-radius: 0.75rem;
+  --em-border: hsl(0 0% 85%);
+  --em-border-width: 1px; /* retire the 0.5px hairlines everywhere */
+
+  /* Search as a pill with an accent outline */
+  --em-radius-search: 9999px;
+  --em-border-search: hsl(85 75% 40%);
+  --em-border-width-search: 2px;
+
+  /* Reaction chips sharp and filled */
+  --em-radius-reaction-chip: 0;
+  --em-bg-reaction-chip: hsl(0 0% 96%);
+}
+```
+
+## Per-slot className
+
+Every slot also accepts a `className` that is merged with the defaults via `tailwind-merge` — later classes win. Handy if you use Tailwind:
+
+```tsx
+<EmoteList.Root>
+  <EmoteList.Search className="rounded-full border-2 border-pink-500" />
+  <EmoteList.Tabs />
+  <EmoteList.Grid />
+</EmoteList.Root>
+```
+
+## Headless mode
+
+If you want none of the defaults, skip the CSS import and style every slot yourself. All primitives are unstyled when no CSS is present.

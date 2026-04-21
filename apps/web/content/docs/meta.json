@@ -1,0 +1,30 @@
+{
+  "title": "Docs",
+  "pages": [
+    "---Getting started---",
+    "index",
+    "installation",
+    "concepts",
+    "---Components---",
+    "components/emote-list",
+    "components/emote-autocomplete",
+    "components/emote-input",
+    "components/reaction-button",
+    "components/reaction-counter",
+    "components/reaction-slider",
+    "---Guides---",
+    "guides/theming",
+    "guides/custom-emojis",
+    "guides/accessibility",
+    "guides/ssr",
+    "guides/frameworks",
+    "---Recipes---",
+    "recipes/chat-composer",
+    "recipes/post-reactions",
+    "recipes/feedback-widget",
+    "---Reference---",
+    "api",
+    "---Project---",
+    "roadmap"
+  ]
+}

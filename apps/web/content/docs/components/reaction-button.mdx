@@ -1,0 +1,155 @@
+---
+title: ReactionButton
+description: Sticker-style reaction buttons with burst animations and an optional picker
+---
+
+`ReactionButton` renders one or more tappable emoji stickers. Use a handful of curated emojis in a quick bar, add a "more" button that opens a full picker, or render isolated stickers anywhere in the UI.
+
+<ReactionButtonPreview />
+
+## Sticker
+
+The simplest form: a standalone sticker button with a burst animation on click.
+
+```tsx title="components/stickers.tsx"
+import { ReactionButton } from '@emoteer/react';
+
+export function Stickers() {
+  return (
+    <div className="flex gap-4">
+      {['❤️', '🔥', '🚀', '✨'].map((emoji) => (
+        <ReactionButton.Sticker
+          key={emoji}
+          emoji={emoji}
+          burst
+          onClick={() => console.log(emoji)}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+## Quick bar
+
+Combine multiple stickers and a picker trigger in a single floating bar.
+
+```tsx title="components/quick-bar.tsx"
+import { ReactionButton, EmoteList } from '@emoteer/react';
+import { useState } from 'react';
+
+export function QuickBar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <ReactionButton.Root onSelect={(e) => console.log(e)}>
+      {['👍', '❤️', '😂', '🙏'].map((emoji) => (
+        <ReactionButton.Item key={emoji} emoji={emoji} burst />
+      ))}
+
+      <ReactionButton.Divider />
+
+      <ReactionButton.Popover open={open} onOpenChange={(d) => setOpen(d.open)}>
+        <ReactionButton.Trigger>
+          <ReactionButton.Plus />
+        </ReactionButton.Trigger>
+        <ReactionButton.Content>
+          <EmoteList.Root onSelect={(e) => setOpen(false)}>
+            <EmoteList.Search />
+            <EmoteList.Tabs />
+            <EmoteList.Grid />
+          </EmoteList.Root>
+        </ReactionButton.Content>
+      </ReactionButton.Popover>
+    </ReactionButton.Root>
+  );
+}
+```
+
+## Slots
+
+| Slot | Description |
+| --- | --- |
+| `Root` | Container for a quick bar. Exposes `onSelect`. |
+| `Item` | A sticker in the quick bar. Emits selection on click. |
+| `Sticker` | Standalone sticker button (no `Root` required). |
+| `Divider` | Visual separator inside the quick bar. |
+| `Plus` | Icon button, typically used as a `Trigger` child. |
+| `Popover` | Controlled popover wrapping the picker content. |
+| `Trigger` | Element that toggles the popover. |
+| `Content` | Popover body — typically an `EmoteList`. |
+
+## Props
+
+### `ReactionButton.Root`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `onSelect` | `(emoji: string) => void` | Fires when any `Item` inside the quick bar is tapped. |
+| `className` | `string` | Forwarded to the outer container. |
+| `children` | `ReactNode` | Items, dividers and the picker popover. |
+
+### `ReactionButton.Item`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `emoji` | `string` | — | Emoji shown inside the sticker. |
+| `label` | `string` | `emoji` | Accessible label. Defaults to the emoji character. |
+| `burst` | `boolean` | `false` | Show a particle burst on click. |
+| `className` | `string` | — | Forwarded to the `<button>`. |
+| ...native | — | — | All standard `<button>` attributes. |
+
+### `ReactionButton.Sticker`
+
+Standalone sticker — works without a `Root`.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `emoji` | `string` | `"❤️"` | Emoji to display and report. |
+| `onClick` | `() => void` | — | Fires when the sticker is tapped. |
+| `burst` | `boolean` | `true` | Show a particle burst on click. |
+| `children` | `ReactNode` | `emoji` | Override the sticker contents. |
+| `className` | `string` | — | Forwarded to the outer `<div>`. |
+
+### `ReactionButton.Divider`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the divider element. |
+
+### `ReactionButton.Plus`
+
+A pre-styled "+" icon button, typically used as the child of `Trigger`.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `onClick` | `() => void` | Click handler. |
+| `className` | `string` | Forwarded to the `<button>`. |
+| ...native | — | All standard `<button>` attributes. |
+
+### `ReactionButton.Popover`
+
+Controlled popover container.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `open` | `boolean` | Whether the popover is open. |
+| `onOpenChange` | `(details: { open: boolean }) => void` | Called when the open state changes. |
+| `children` | `ReactNode` | Trigger and content. |
+
+### `ReactionButton.Trigger`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `children` | `ReactElement` | Element that receives the trigger props. Defaults to `ReactionButton.Plus`. |
+
+### `ReactionButton.Content`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `children` | `ReactNode` | Popover body — typically an `EmoteList`. |
+| `className` | `string` | Forwarded to the content wrapper. |
+
+## Burst animation
+
+Setting `burst` on a `Sticker` or `Item` emits a short particle animation on click. It's pure CSS — no external library — and honors `prefers-reduced-motion`.

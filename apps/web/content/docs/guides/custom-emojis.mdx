@@ -1,0 +1,83 @@
+---
+title: Custom emojis
+description: Add your own emojis, shortcodes and locales via the provider
+---
+
+Emoteer ships with the full Unicode emoji set and English shortcodes by default. You can extend, replace, or localize the dataset through the `EmoteProvider`.
+
+## Adding custom emojis
+
+Pass a `customEmotes` array to the provider. Each entry extends the search and shortcode index automatically.
+
+```tsx title="app/layout.tsx"
+import { EmoteProvider } from '@emoteer/react';
+
+const customEmotes = [
+  {
+    shortcode: 'emoteer',
+    unicode: '💚',
+    keywords: ['emoteer', 'brand'],
+    category: 'custom',
+  },
+  {
+    shortcode: 'party_parrot',
+    // either a unicode string or an image URL
+    image: '/emotes/party-parrot.gif',
+    keywords: ['parrot', 'party'],
+    category: 'custom',
+  },
+];
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <EmoteProvider customEmotes={customEmotes}>
+      {children}
+    </EmoteProvider>
+  );
+}
+```
+
+Custom emojis surface in:
+
+- `EmoteList.Search` (by shortcode or keyword)
+- `EmoteList.Tabs` (under the `category` you specify)
+- `EmoteAutocomplete` suggestions
+- `EmoteInput` / `EmoteTextArea` conversion
+
+## Localizing shortcodes
+
+Pass a `locale` to switch the shortcode dictionary:
+
+```tsx
+<EmoteProvider locale="es">
+  {children}
+</EmoteProvider>
+```
+
+Bundled locales: `en`, `es`, `fr`, `de`, `pt`, `it`, `ja`, `zh`. Missing a locale? Supply your own:
+
+```tsx
+<EmoteProvider locale={{ id: 'eo', shortcodes: myShortcodes }}>
+  {children}
+</EmoteProvider>
+```
+
+## Disabling built-in emojis
+
+If you want to ship only your custom set — for a brand-specific picker, say — pass `includeDefaults={false}`:
+
+```tsx
+<EmoteProvider includeDefaults={false} customEmotes={customEmotes}>
+  {children}
+</EmoteProvider>
+```
+
+## Cloud-hosted datasets
+
+`@emoteer/core` exposes a `CloudConfig` for fetching emoji data at runtime. Good for tenant-specific emojis in multi-tenant apps.
+
+```tsx
+<EmoteProvider cloud={{ url: '/api/emojis', revalidate: 3600 }}>
+  {children}
+</EmoteProvider>
+```

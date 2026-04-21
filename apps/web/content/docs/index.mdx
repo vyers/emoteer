@@ -1,0 +1,43 @@
+---
+title: Introduction
+description: The emoji toolkit for the modern web
+---
+
+**Emoteer** is a framework-agnostic toolkit for building rich emoji experiences — pickers, reactions, autocomplete, and emoji-aware inputs — with primitives that are headless by default and styled when you want them to be.
+
+It ships a shared data and state core (`@emoteer/core`) plus thin framework bindings. React is production-ready today; Svelte and Vue are on the roadmap.
+
+## What's in the box
+
+<Cards>
+  <Card title="EmoteList" description="Searchable, virtualized emoji picker with tabs, keyboard navigation and preview." href="/docs/components/emote-list" />
+  <Card title="ReactionCounter" description="Grouped reaction chips with counts, active states and toggles." href="/docs/components/reaction-counter" />
+  <Card title="EmoteAutocomplete" description="Inline shortcode suggestions triggered by typing `:` in any input." href="/docs/components/emote-autocomplete" />
+  <Card title="EmoteInput" description="Single-line and multi-line inputs that auto-convert `:shortcode:` to unicode." href="/docs/components/emote-input" />
+  <Card title="ReactionSlider" description="Emoji-based intensity sliders for feedback and ratings." href="/docs/components/reaction-slider" />
+  <Card title="ReactionButton" description="Sticker-style reaction buttons with burst animations and an optional picker." href="/docs/components/reaction-button" />
+</Cards>
+
+## Design principles
+
+- **Headless first.** Compound primitives give you full control over markup, ARIA and styling. Defaults are opt-in.
+- **Framework agnostic.** The core package ships data, search and state; bindings are a thin layer.
+- **Typed end-to-end.** Every event, slot and prop is typed. No `any`s in public APIs.
+- **Zero config.** Ship a full picker in ten lines. Customize only what you need.
+
+## Packages
+
+| Package | Status | Description |
+| --- | --- | --- |
+| `@emoteer/core` | stable | Data, search, shortcodes and state machines |
+| `@emoteer/react` | stable | React bindings and styled components |
+| `@emoteer/svelte` | soon | Svelte bindings |
+| `@emoteer/vue` | soon | Vue bindings |
+
+## Next steps
+
+<Cards>
+  <Card title="Installation" description="Add emoteer to your project and import the default styles." href="/docs/installation" />
+  <Card title="Concepts" description="Core, bindings, provider, compound primitives and state ownership." href="/docs/concepts" />
+  <Card title="GitHub" description="Report issues, request features, read the source." href="https://github.com/vyers/emoteer" />
+</Cards>

@@ -1,0 +1,66 @@
+---
+title: Feedback widget
+description: An emoji intensity slider that collects a rating with one gesture
+---
+
+A compact feedback widget built around `ReactionSlider`. The user drags a single emoji thumb; the value maps to a 1–5 rating and is submitted once they release.
+
+## The pattern
+
+```tsx title="components/feedback-widget.tsx"
+import { ReactionSlider } from '@emoteer/react';
+import { useState } from 'react';
+
+const LEVELS = ['😞', '🙁', '😐', '🙂', '🤩'];
+
+export function FeedbackWidget({
+  onSubmit,
+}: {
+  onSubmit: (rating: number) => void;
+}) {
+  const [value, setValue] = useState(50);
+  const level = Math.max(0, Math.min(4, Math.floor(value / 20)));
+  const emoji = LEVELS[level];
+
+  return (
+    <div className="flex flex-col gap-4 rounded-2xl border p-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold tracking-tight">
+          How was your experience?
+        </h3>
+        <span className="font-mono text-xs text-muted-foreground">
+          {level + 1} / 5
+        </span>
+      </div>
+
+      <ReactionSlider.Root emoji={emoji} value={value} onChange={setValue}>
+        <ReactionSlider.Track>
+          <ReactionSlider.Range />
+        </ReactionSlider.Track>
+        <ReactionSlider.Thumb>
+          <ReactionSlider.Marker />
+        </ReactionSlider.Thumb>
+      </ReactionSlider.Root>
+
+      <button
+        type="button"
+        onClick={() => onSubmit(level + 1)}
+        className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold"
+      >
+        Send feedback
+      </button>
+    </div>
+  );
+}
+```
+
+## What it does
+
+- A single slider captures a 0–100 value.
+- The value is bucketed into one of five levels (1–5) and mapped to an emoji that updates live as the user drags.
+- On submit, the parent receives the 1–5 rating.
+
+## Notes
+
+- Replace the emoji array with brand-specific emojis for product satisfaction, NPS-like surveys, or mood check-ins.
+- For a 1–5 slider without bucketing, set `min={1}` and `max={5}` on the root and let the thumb snap to integers with `step={1}`.

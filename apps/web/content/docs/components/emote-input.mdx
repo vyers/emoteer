@@ -1,0 +1,123 @@
+---
+title: EmoteInput
+description: "Inputs and textareas that auto-convert :shortcode: to unicode"
+---
+
+`EmoteInput` and `EmoteTextArea` are drop-in replacements for native form controls. The moment the user closes a shortcode — typing the second `:` in `:star:` — it is converted to `⭐` in place.
+
+<EmoteInputPreview />
+
+## Controlled or uncontrolled
+
+Both components behave exactly like native `<input>` / `<textarea>`:
+
+- Pass **`value` + `onChange`** for controlled mode — works with form libraries (react-hook-form, formik), programmatic resets, draft persistence, and server-synced state.
+- Pass **`defaultValue`** (or nothing) for uncontrolled mode — the component holds its own state.
+
+In **both** modes, `onChange(e)` receives the already-converted text via `e.target.value`. The cursor position is preserved across conversions using a `useLayoutEffect` that restores the selection after React reconciles.
+
+## EmoteInput
+
+Single-line input. Controlled example:
+
+```tsx title="components/single-input.tsx"
+import { EmoteInput } from '@emoteer/react';
+import { useState } from 'react';
+
+export function Single() {
+  const [value, setValue] = useState('');
+  return (
+    <EmoteInput
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="Try typing :star:"
+    />
+  );
+}
+```
+
+Uncontrolled variant:
+
+```tsx
+<EmoteInput
+  defaultValue=""
+  onChange={(e) => console.log(e.target.value)}
+  placeholder="Try typing :star:"
+/>
+```
+
+## EmoteTextArea
+
+Multi-line textarea with the same conversion behavior and the same controlled / uncontrolled options.
+
+```tsx title="components/multi-input.tsx"
+import { EmoteTextArea } from '@emoteer/react';
+import { useState } from 'react';
+
+export function Multi() {
+  const [value, setValue] = useState('');
+  return (
+    <EmoteTextArea
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="Try typing :grinning_face:"
+    />
+  );
+}
+```
+
+## Integrating with form libraries
+
+Because both components expose the standard controlled API, they work out of the box with any form library. Example with `react-hook-form`:
+
+```tsx title="components/form.tsx"
+import { EmoteInput } from '@emoteer/react';
+import { Controller, useForm } from 'react-hook-form';
+
+export function Form() {
+  const { control, handleSubmit } = useForm({ defaultValues: { message: '' } });
+  return (
+    <form onSubmit={handleSubmit((data) => console.log(data))}>
+      <Controller
+        control={control}
+        name="message"
+        render={({ field }) => <EmoteInput {...field} />}
+      />
+      <button type="submit">Send</button>
+    </form>
+  );
+}
+```
+
+## Props
+
+Both components forward all native input / textarea attributes plus a `ref`.
+
+### `EmoteInput`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `value` | `string` | Controlled value. Pair with `onChange`. |
+| `defaultValue` | `string` | Initial value in uncontrolled mode. |
+| `onChange` | `(e: ChangeEvent<HTMLInputElement>) => void` | Fires after every keystroke and after every conversion. `e.target.value` is the converted text. |
+| `ref` | `Ref<HTMLInputElement>` | Forwarded to the `<input>` element. |
+| `className` | `string` | Forwarded to the `<input>` element. |
+| ...native | — | All standard `<input>` attributes (`placeholder`, `disabled`, `readOnly`, `maxLength`, etc). |
+
+### `EmoteTextArea`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `value` | `string` | Controlled value. Pair with `onChange`. |
+| `defaultValue` | `string` | Initial value in uncontrolled mode. |
+| `onChange` | `(e: ChangeEvent<HTMLTextAreaElement>) => void` | Fires after every keystroke and after every conversion. |
+| `ref` | `Ref<HTMLTextAreaElement>` | Forwarded to the `<textarea>` element. |
+| `className` | `string` | Forwarded to the `<textarea>` element. |
+| ...native | — | All standard `<textarea>` attributes. |
+
+## Notes
+
+- Conversion fires the moment a shortcode is closed — i.e. as soon as the second `:` in `:name:` is typed. No trailing space required.
+- Unmatched shortcodes (no emoji found for the name) stay as plain text.
+- Cursor position is preserved in both modes.
+- Requires an ancestor `EmoteProvider` — the components read the shortcode index from context.

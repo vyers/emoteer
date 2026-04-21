@@ -1,0 +1,106 @@
+---
+title: ReactionSlider
+description: Emoji-based intensity slider (0–100) with animated thumb and marker
+---
+
+`ReactionSlider` is an intensity slider that uses an emoji as the thumb. Scale, rotation and color can all follow the value. Great for feedback forms, ratings and micro-interactions.
+
+<ReactionSliderPreview />
+
+## Anatomy
+
+```tsx
+<ReactionSlider.Root emoji="❤️" value={value} onChange={setValue}>
+  <ReactionSlider.Track>
+    <ReactionSlider.Range />
+  </ReactionSlider.Track>
+  <ReactionSlider.Thumb>
+    <ReactionSlider.Marker />
+  </ReactionSlider.Thumb>
+</ReactionSlider.Root>
+```
+
+## Basic usage
+
+```tsx title="components/intensity.tsx"
+import { ReactionSlider } from '@emoteer/react';
+import { useState } from 'react';
+
+export function Intensity() {
+  const [value, setValue] = useState(50);
+
+  return (
+    <ReactionSlider.Root emoji="❤️" value={value} onChange={setValue}>
+      <ReactionSlider.Track>
+        <ReactionSlider.Range />
+      </ReactionSlider.Track>
+      <ReactionSlider.Thumb>
+        <ReactionSlider.Marker />
+      </ReactionSlider.Thumb>
+    </ReactionSlider.Root>
+  );
+}
+```
+
+## Custom marker
+
+The marker slot accepts a render function that receives the current value. Use it to display a custom label, gradient or sparkline.
+
+```tsx
+<ReactionSlider.Marker>
+  {(val) => `${Math.round(val)}% INTENSITY`}
+</ReactionSlider.Marker>
+```
+
+## Props
+
+### `ReactionSlider.Root`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `number` | — | Current value. Must be within `[min, max]`. |
+| `onChange` | `(value: number) => void` | — | Fires on every drag and keyboard interaction. |
+| `onChangeEnd` | `(value: number) => void` | — | Fires once when the user releases the thumb. |
+| `emoji` | `string` | `"❤️"` | Emoji shown on the thumb. |
+| `min` | `number` | `0` | Minimum value. |
+| `max` | `number` | `100` | Maximum value. |
+| `ariaLabel` | `string` | `"Reaction intensity"` | Screen reader label. |
+| `burst` | `boolean` | `true` | Show a particle burst when the user releases the thumb. |
+| `scaleEffect` | `boolean` | `true` | Scale the thumb proportionally to the value. |
+| `className` | `string` | — | Forwarded to the outer container. |
+| `children` | `ReactNode` | — | Track, range, thumb and marker slots. |
+
+### `ReactionSlider.Track`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the track element. |
+| `children` | `ReactNode` | Typically a `ReactionSlider.Range`. |
+
+### `ReactionSlider.Range`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the filled range element. |
+
+### `ReactionSlider.Thumb`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the thumb element. |
+| `children` | `ReactNode` | Typically a `ReactionSlider.Marker`. |
+
+### `ReactionSlider.Marker`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `className` | `string` | Forwarded to the marker element. |
+| `children` | `(value: number) => ReactNode` | Render function receiving the live value. Return custom labels, sparklines, gradients, etc. |
+
+The marker is only rendered while the user is dragging — it hides on release.
+
+## Accessibility
+
+- Keyboard support: arrow keys step, Home/End jump to min/max, Page Up/Down move by 10.
+- The slider exposes standard `role="slider"` with `aria-valuemin`, `aria-valuemax` and `aria-valuenow`.
+- Reduced motion is honored: the thumb animates only when `prefers-reduced-motion: no-preference`.
