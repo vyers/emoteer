@@ -3,6 +3,9 @@ name: Publish to npm
 on:
   push:
     tags:
+      # per-package release: @emoteer/react@0.2.0, @emoteer/theme@0.1.2, etc.
+      - '@emoteer/*@*'
+      # monorepo-wide release: v0.1.1 (all packages bumped in sync)
       - 'v*'
   workflow_dispatch:
 
