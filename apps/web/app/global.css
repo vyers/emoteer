@@ -89,8 +89,9 @@ html>body[data-scroll-locked] {
 @theme inline {
   --font-sans: "Manrope", sans-serif;
   --font-mono: "Geist Mono", monospace;
+}
 
-
+@theme {
   --color-fd-primary: hsl(85, 75%, 36%);
   --color-fd-primary-foreground: hsl(0, 0%, 98%);
 }
