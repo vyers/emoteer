@@ -27,12 +27,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
-
-      - name: Upgrade npm to a version that supports OIDC trusted publishing
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -40,15 +37,5 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Pack publishable packages (rewrites workspace protocol)
-        run: |
-          mkdir -p /tmp/tarballs
-          pnpm --filter "@emoteer/core" pack --pack-destination /tmp/tarballs
-          pnpm --filter "@emoteer/theme" pack --pack-destination /tmp/tarballs
-          pnpm --filter "@emoteer/react" pack --pack-destination /tmp/tarballs
-
-      - name: Publish tarballs to npm (via OIDC)
-        run: |
-          npm publish /tmp/tarballs/emoteer-core-*.tgz --access public
-          npm publish /tmp/tarballs/emoteer-theme-*.tgz --access public
-          npm publish /tmp/tarballs/emoteer-react-*.tgz --access public
+      - name: Publish to npm
+        run: pnpm -r publish --access public --no-git-checks
