@@ -40,12 +40,12 @@ export function ReactionCounter({
           aria-pressed={reaction.active}
           onClick={(e) => handleClick(e, reaction)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg border-[0.5px]",
+            "inline-flex items-center gap-1.5 rounded-(--em-radius-reaction-chip) border-(length:--em-border-width-reaction-chip)",
             "px-2 py-0.5 text-sm cursor-pointer select-none transition-colors",
             "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary",
             reaction.active
-              ? "border-em-primary bg-em-hover text-slate-900 font-semibold"
-              : "border-em-border bg-em-bg text-em-muted hover:bg-em-hover hover:text-slate-700",
+              ? "border-em-primary bg-em-active text-em-fg font-semibold"
+              : "border-(--em-border-reaction-chip) bg-(--em-bg-reaction-chip) text-em-muted hover:bg-em-hover hover:text-em-fg",
           )}
         >
           <span aria-hidden="true">{reaction.emoji}</span>

@@ -146,7 +146,7 @@ function Root({ onSelect, className, children }: EmoteListRootProps) {
     >
       <div
         className={cn(
-          "w-80 border rounded-lg border-em-border bg-em-bg overflow-hidden",
+          "w-80 border-(length:--em-border-width-root) rounded-(--em-radius-root) border-(--em-border-root) bg-(--em-bg-root) overflow-hidden",
           className,
         )}
       >
@@ -180,7 +180,7 @@ function Search({
         placeholder={placeholder}
         aria-label="Search emojis"
         className={cn(
-          "w-full font-semibold p-2.5 rounded-lg border-[0.5px] border-em-border",
+          "w-full font-semibold p-2.5 rounded-(--em-radius-search) border-(length:--em-border-width-search) border-(--em-border-search)",
           "text-sm focus:outline-hidden focus:ring-2 focus:ring-em-primary",
           className,
         )}
@@ -595,7 +595,7 @@ function Preview({ className }: EmoteListPreviewProps) {
   return (
     <div
       className={cn(
-        "flex justify-between border-t-[0.5px] border-em-border h-10 gap-2.5 px-2.5 items-center",
+        "flex justify-between border-t-(length:--em-border-width-preview) border-t-(--em-border-preview) h-10 gap-2.5 px-2.5 items-center",
         className,
       )}
     >

@@ -76,8 +76,8 @@ function Item({
       {...props}
       onClick={handleClick}
       className={cn(
-        "relative inline-flex h-8 w-8 items-center justify-center rounded-lg border-[0.5px] border-em-border",
-        "bg-em-bg text-lg transition-all hover:bg-em-hover hover:border-em-fg/20 active:scale-95",
+        "relative inline-flex h-8 w-8 items-center justify-center rounded-(--em-radius-reaction-item) border-(length:--em-border-width-reaction-item) border-(--em-border-reaction-item)",
+        "bg-(--em-bg-reaction-item) text-lg transition-all hover:bg-em-hover hover:border-em-fg/20 active:scale-95",
         "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary select-none cursor-pointer",
         className,
       )}
@@ -112,8 +112,8 @@ const Plus = forwardRef<HTMLButtonElement, ReactionButtonPlusProps>(
         {...props}
         onClick={onClick}
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-lg border-[0.5px] border-em-border",
-          "bg-em-bg text-em-muted transition-all hover:bg-em-hover hover:border-em-fg/20 active:scale-95",
+          "inline-flex h-8 w-8 items-center justify-center rounded-(--em-radius-reaction-item) border-(length:--em-border-width-reaction-item) border-(--em-border-reaction-item)",
+          "bg-(--em-bg-reaction-item) text-em-muted transition-all hover:bg-em-hover hover:border-em-fg/20 active:scale-95",
           "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary",
           className,
         )}
@@ -168,7 +168,7 @@ function Sticker({
         onClick={handleClick}
         className={cn(
           "group relative flex h-12 w-12 items-center justify-center rounded-full",
-          "border-2 border-em-border bg-em-bg text-2xl shadow-lg transition-all",
+          "border-(length:--em-border-width-reaction-sticker) border-(--em-border-reaction-sticker) bg-(--em-bg-reaction-sticker) text-2xl shadow-lg transition-all",
           "hover:scale-110 hover:-rotate-3 active:scale-95",
           "focus-visible:outline-hidden focus-visible:ring-2 select-none cursor-pointer focus-visible:ring-em-primary",
         )}

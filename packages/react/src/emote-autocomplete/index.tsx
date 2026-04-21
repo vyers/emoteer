@@ -237,7 +237,7 @@ function Input({
         onKeyDown?.(e);
       }}
       className={cn(
-        "font-semibold p-2.5 rounded-lg border-[0.5px] border-em-border bg-em-bg",
+        "font-semibold p-2.5 rounded-(--em-radius-autocomplete-input) border-(length:--em-border-width-autocomplete-input) border-(--em-border-autocomplete-input) bg-(--em-bg-autocomplete-input)",
         "focus:outline-hidden focus:ring-2 focus:ring-em-primary",
         className,
       )}
@@ -289,7 +289,7 @@ function List({ className }: EmoteAutocompleteListProps) {
       aria-label="Emoji suggestions"
       className={cn(
         "flex items-center gap-1.25 whitespace-nowrap",
-        "border rounded-lg border-em-border bg-em-bg p-2",
+        "border-(length:--em-border-width-autocomplete-list) rounded-(--em-radius-autocomplete-list) border-(--em-border-autocomplete-list) bg-(--em-bg-autocomplete-list) p-2",
         className,
       )}
     >

@@ -198,6 +198,7 @@ function Thumb({ className, children }: ReactionSliderThumbProps) {
       {...thumbProps}
       className={cn(
         "z-10 flex items-center justify-center outline-none cursor-pointer",
+        "filter-[drop-shadow(0_2px_2px_rgba(0,0,0,0.35))]",
         className,
       )}
       style={{
@@ -215,7 +216,7 @@ function Thumb({ className, children }: ReactionSliderThumbProps) {
         style={{
           fontSize: "1.75rem",
         }}
-        className="select-none leading-none drop-shadow-md"
+        className="select-none leading-none"
       >
         {emoji}
       </span>
