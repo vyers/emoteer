@@ -8,6 +8,7 @@ Emoteer ships as a set of packages published under the `@emoteer` scope. The Rea
 ## Requirements
 
 - **React** 19 or later (peer dependency)
+- **Tailwind CSS v4** in the consuming app — the styles ship as a preset processed by your Tailwind pipeline
 - **Node.js** 20 or later for tooling
 - A bundler that supports ES modules (Next.js, Vite, Remix, Astro…)
 
@@ -31,13 +32,14 @@ bun add @emoteer/react
 
 ## Import the default styles
 
-Emoteer ships a single CSS file with Tailwind-compatible defaults. Import it once at the root of your app:
+Emoteer ships a Tailwind v4 preset. Import it from your main CSS file, right after the main Tailwind import:
 
-```ts title="app/layout.tsx"
-import '@emoteer/react/css';
+```css title="app/global.css"
+@import 'tailwindcss';
+@import '@emoteer/react/tailwind';
 ```
 
-Every class is prefixed and safe to override from your own styles.
+Your app's Tailwind generates only the utilities the components actually use, inside your own `@layer utilities` — nothing pre-compiled, nothing to conflict with your own styles. Every class is namespaced (`em-*`) and safe to override.
 
 ## Wrap your app in the provider
 

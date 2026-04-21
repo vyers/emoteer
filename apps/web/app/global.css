@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/black.css';
 @import 'fumadocs-ui/css/preset.css';
-@import '@emoteer/react/css';
+@import '@emoteer/react/tailwind';
 
 html {
   scrollbar-gutter: stable;

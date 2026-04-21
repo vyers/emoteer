@@ -8,9 +8,14 @@ The modern emoji SDK for the web. Headless and styled React components for emoji
 npm install @emoteer/react
 ```
 
+```css
+/* your app's main CSS, processed by Tailwind v4 */
+@import "tailwindcss";
+@import "@emoteer/react/tailwind";
+```
+
 ```tsx
 import { EmoteProvider, EmoteListPicker } from "@emoteer/react";
-import "@emoteer/react/css";
 
 export function App() {
   return (
@@ -29,7 +34,7 @@ export function App() {
 - **Tree-shakeable** — ESM output, per-locale code splitting of emoji data so apps ship only what they use.
 - **28 locales** — BCP 47 tags with native-language labels and shortcodes (emojibase + CLDR providers).
 - **TypeScript first** — strict typings, discriminated unions for emoji tiers, `Locale` union with IDE autocomplete.
-- **Zero runtime resets** — library CSS ships only utilities and tokens, no Tailwind preflight, so it never overrides consumer base styles.
+- **Zero runtime resets** — the Tailwind preset only contributes utilities used by the components and the `--em-*` tokens, no Tailwind preflight, so it never overrides consumer base styles.
 
 ## Packages
 
@@ -46,7 +51,7 @@ Support for Svelte and Vue is planned — Zag's state machines already run frame
 - **Node** ≥ 20 (development).
 - **React** ^19 (peer dependency of `@emoteer/react`).
 - **Modern evergreen browsers** — Chromium, Firefox, Safari. No IE11.
-- **Tailwind CSS v4** is optional — it only matters if you want to extend the component styles with your own utilities.
+- **Tailwind CSS v4** — required, since `@emoteer/react/tailwind` is a preset processed by your app's Tailwind pipeline.
 
 ## Monorepo
 

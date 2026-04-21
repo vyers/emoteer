@@ -7,10 +7,11 @@ Emoteer ships a set of styled defaults that you can keep, partially override, or
 
 ## Using the default theme
 
-Import the stylesheet once:
+Import the preset from your main CSS, after the main Tailwind import:
 
-```ts title="app/layout.tsx"
-import '@emoteer/react/css';
+```css title="app/global.css"
+@import 'tailwindcss';
+@import '@emoteer/react/tailwind';
 ```
 
 The defaults use a set of CSS variables, prefixed with `--em-`:
@@ -46,7 +47,7 @@ Scope overrides to any ancestor — the nearest declaration wins.
 
 ## Plugging Tailwind tokens
 
-Map Emoteer variables to the tokens from your own Tailwind theme. Works with both v3 and v4.
+Map Emoteer variables to the tokens from your own Tailwind theme.
 
 ```css title="app/globals.css"
 :root {
@@ -157,4 +158,4 @@ Every slot also accepts a `className` that is merged with the defaults via `tail
 
 ## Headless mode
 
-If you want none of the defaults, skip the CSS import and style every slot yourself. All primitives are unstyled when no CSS is present.
+If you want none of the defaults, skip the `@emoteer/react/tailwind` import and style every slot yourself. All primitives are unstyled when the preset is absent.

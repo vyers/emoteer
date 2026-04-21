@@ -27,15 +27,16 @@ Peer dependencies:
 
 ### Styles
 
-The package ships pre-compiled CSS at `@emoteer/react/css`. Import it once in your app entry:
+The package ships a Tailwind v4 preset at `@emoteer/react/tailwind`. Import it from a CSS file processed by your app's Tailwind, after the main Tailwind import:
 
-```ts
-import "@emoteer/react/css";
+```css
+@import "tailwindcss";
+@import "@emoteer/react/tailwind";
 ```
 
-This file contains only the utilities used by the components and the `--em-*` design tokens — **no Tailwind preflight**, so it never overrides your own `body`, `*`, or typography resets.
+The preset pulls in the `--em-*` design tokens and points Tailwind at the compiled components so it generates only the utilities they actually use — inside your app's own `@layer utilities`, with no pre-compiled rules to clash with the rest of your styles. **Tailwind CSS v4 is required** in the consuming app.
 
-If your app already uses Tailwind CSS v4 and you only want the tokens:
+If you only want the tokens and not the component styles, import the theme directly:
 
 ```css
 @import "@emoteer/theme/tailwind";
@@ -47,7 +48,6 @@ Every data-aware component expects an `EmoteProvider` ancestor:
 
 ```tsx
 import { EmoteProvider } from "@emoteer/react";
-import "@emoteer/react/css";
 
 export function App({ children }) {
   return (
@@ -69,7 +69,6 @@ import {
   ReactionButton,
   ReactionCounter,
 } from "@emoteer/react";
-import "@emoteer/react/css";
 
 export function Message() {
   const [reactions, setReactions] = useState([
