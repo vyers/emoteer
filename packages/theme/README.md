@@ -37,11 +37,13 @@ Defines the full `--em-*` token set on `:root` and a dark override on `.dark`. E
 @import "@emoteer/theme/tailwind";
 ```
 
-Re-exports the base CSS and adds a `@theme` block that exposes each `--em-*` token as a Tailwind color utility (`bg-em-bg`, `text-em-fg`, `border-em-border`, …), plus the `animate-burst` keyframe used by the reaction particle effects.
+Re-exports the base CSS and adds a `@theme` block that exposes each `--em-*` token as a Tailwind utility — color utilities (`bg-em-bg`, `text-em-fg`, `border-em-border`, …), radius utilities (`rounded-em`, `rounded-em-search`, …) and border-width utilities (`border-em`, `border-em-reaction-sticker`, …) — plus the `animate-burst` keyframe used by the reaction particle effects.
 
 Peer dependency: `tailwindcss@^4`. Marked optional — `npm` won't warn if you don't install it.
 
 ## Tokens
+
+### Base tokens
 
 | Token            | Default (light)                | Purpose                                                  |
 | ---------------- | ------------------------------ | -------------------------------------------------------- |
@@ -54,8 +56,58 @@ Peer dependency: `tailwindcss@^4`. Marked optional — `npm` won't warn if you d
 | `--em-active`    | `hsl(210 40% 91%)`             | Pressed / active background                              |
 | `--em-shadow`    | `hsl(0 0% 0%)`                 | Shadow color (consumed by components as needed)          |
 | `--em-radius`    | `0.5rem`                       | Base border radius                                       |
+| `--em-border-width` | `0.5px`                     | Base border width for form controls                      |
 
 Every token reads from a higher-level variable first — e.g. `--em-bg: var(--background, hsl(0 0% 100%))` — so overriding `--background` in your own stylesheet cascades automatically.
+
+### Per-slot overrides
+
+The base tokens above set the default look across the library. For finer control, every styled slot also exposes its own variable that defaults to the base token. Set just the slots you want to change and leave everything else untouched.
+
+Four properties cascade this way: **radius**, **background**, **border color** and **border width**.
+
+```
+--em-<property>              ← global default for this property
+--em-<property>-<slot>       ← per-slot override, defaults to the global
+```
+
+Slots:
+
+| Slot                     | Used by                                            |
+| ------------------------ | -------------------------------------------------- |
+| `root`                   | Outer container of `EmoteList` / picker.           |
+| `search`                 | `EmoteList.Search` input.                          |
+| `preview`                | `EmoteList.Preview` panel.                         |
+| `input`                  | `EmoteInput`.                                      |
+| `textarea`               | `EmoteTextArea`.                                   |
+| `autocomplete-input`     | `EmoteAutocomplete.Input`.                         |
+| `autocomplete-list`      | `EmoteAutocomplete.List`.                          |
+| `reaction-item`          | `ReactionButton.Item`.                             |
+| `reaction-sticker`       | `ReactionButton.Sticker`.                          |
+| `reaction-chip`          | `ReactionCounter` chip.                            |
+
+Example — pill-shaped search and autocomplete, everything else unchanged:
+
+```css
+:root {
+  --em-radius-search: 9999px;
+  --em-radius-autocomplete-input: 9999px;
+}
+```
+
+Example — thicker border on the sticker button only:
+
+```css
+:root {
+  --em-border-width-reaction-sticker: 3px;
+}
+```
+
+A couple of slots ship non-default values out of the box so the base look stays consistent:
+
+- `--em-border-width-root: 1px` — the outer picker frame uses a visible edge.
+- `--em-border-width-reaction-sticker: 2px` — stickers are heavier by design.
+- `--em-border-width-autocomplete-list: 1px` — popover listbox borders are full-pixel.
 
 ## Dark mode
 
@@ -76,13 +128,16 @@ Override tokens anywhere in your own CSS — they cascade like any custom proper
 ```css
 :root {
   --em-primary: hsl(280 90% 60%);     /* brand accent */
-  --em-radius: 0.25rem;                /* tighter corners */
+  --em-radius: 0.25rem;                /* tighter corners everywhere */
+  --em-radius-search: 9999px;          /* …except the search box */
 }
 
 .dark {
   --em-border: hsl(260 20% 30%);       /* dark border tint */
 }
 ```
+
+Because per-slot tokens default to their base token, a change to `--em-radius` propagates to every slot unless you've explicitly overridden one.
 
 Or map them to an existing design system's own tokens:
 

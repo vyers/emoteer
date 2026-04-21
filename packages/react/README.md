@@ -113,18 +113,24 @@ Swap or skip any subcomponent, wrap it, style it — the state lives in the `Roo
 
 For the common case, convenience exports (`EmoteListPicker`) compose the default arrangement so you don't have to.
 
-### Uncontrolled text inputs
+### Text inputs: controlled or uncontrolled
 
-`EmoteInput`, `EmoteTextArea`, and `EmoteAutocomplete.Input` are **uncontrolled by design**. They mutate the DOM to inject expanded shortcodes and keep their own internal value. Pass `defaultValue`, read changes via callbacks:
+`EmoteInput` and `EmoteTextArea` support both modes:
+
+- **Controlled** — pass `value` + `onChange`. The caret position is preserved across conversions via a layout effect, so typing `:sm` → `:smile:` → `😄` feels natural even in the middle of a word.
+- **Uncontrolled** — pass `defaultValue` (or nothing). The component manages its own value and mutates the DOM in place.
+
+In both modes, `onChange(e)` receives the **already-converted** text via `e.target.value`.
 
 ```tsx
-<EmoteInput
-  defaultValue=""
-  onChange={(e) => setValue(e.target.value)}  // e.target.value is already converted
-/>
+// Controlled
+<EmoteInput value={value} onChange={(e) => setValue(e.target.value)} />
+
+// Uncontrolled
+<EmoteInput defaultValue="" onChange={(e) => console.log(e.target.value)} />
 ```
 
-Passing a controlled `value` prop triggers React's standard "switching between controlled and uncontrolled" warning.
+`EmoteAutocomplete.Input` is **uncontrolled by design** — the `Root` tracks the live input value internally to detect the `:shortcode` trigger. Pass `defaultValue`, read the final text via `onSelect(emoji, value)`.
 
 ### SSR
 
@@ -234,12 +240,14 @@ The input carries `role="combobox"`, `aria-autocomplete="list"`, `aria-expanded`
 Drop-in input / textarea that expands `:shortcode:` to its unicode emoji as the user types. Works in any script — Latin, Cyrillic, Hangul, Han, Devanagari, etc.
 
 ```tsx
+// Controlled
 <EmoteInput
-  defaultValue=""
-  placeholder="Type :smile: to expand"
+  value={value}
   onChange={(e) => setValue(e.target.value)}
+  placeholder="Type :smile: to expand"
 />
 
+// Uncontrolled
 <EmoteTextArea
   defaultValue=""
   rows={5}
@@ -249,7 +257,7 @@ Drop-in input / textarea that expands `:shortcode:` to its unicode emoji as the 
 
 Extends `InputHTMLAttributes<HTMLInputElement>` / `TextareaHTMLAttributes<HTMLTextAreaElement>`. After a conversion, the caret position is adjusted by the delta between original and converted lengths, so typing feels natural even when shortcodes expand in the middle of a word.
 
-> **Uncontrolled by design.** Pass `defaultValue`, not `value`. Read the converted text via `onChange(e)` — `e.target.value` already reflects the expansion.
+Both props work — pass `value` for controlled, `defaultValue` for uncontrolled. `onChange(e)` always fires with the converted text in `e.target.value`.
 
 ### `ReactionButton`
 
