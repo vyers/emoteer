@@ -71,25 +71,6 @@ pnpm check-types
 pnpm lint
 ```
 
-## Publishing
-
-Packages are published in topological order so the workspace `workspace:*` deps resolve to real versions:
-
-1. `@emoteer/core`
-2. `@emoteer/theme`
-3. `@emoteer/react`
-
-```bash
-pnpm -r publish --access public
-```
-
-Verify a tarball before pushing to npm:
-
-```bash
-pnpm --filter @emoteer/core pack --pack-destination /tmp
-tar -tzf /tmp/emoteer-core-*.tgz
-```
-
 ## License
 
 [MIT](./LICENSE) © vyers
