@@ -1,83 +1,103 @@
 ---
 title: Custom emojis
-description: Add your own emojis, shortcodes and locales via the provider
+description: Add your own image-based emotes alongside the Unicode set
 ---
 
-Emoteer ships with the full Unicode emoji set and English shortcodes by default. You can extend, replace, or localize the dataset through the `EmoteProvider`.
+Emoteer ships the full Unicode emoji set by default. You can extend it with your own image-based emotes ("custom emotes") by passing a `locals` array to the `EmoteProvider`.
 
-## Adding custom emojis
+## Adding custom emotes
 
-Pass a `customEmotes` array to the provider. Each entry extends the search and shortcode index automatically.
+Each entry is a `LocalEmote`:
+
+```ts
+interface LocalEmote {
+  id: string;         // stable identifier — used as the React key
+  name: string;       // display name, also the shortcode (without colons)
+  src: string;        // URL or local path to the image
+  category?: string;  // optional free-form label, indexed for search
+}
+```
+
+Pass them to the provider:
 
 ```tsx title="app/layout.tsx"
 import { EmoteProvider } from '@emoteer/react';
 
-const customEmotes = [
-  {
-    shortcode: 'emoteer',
-    unicode: '💚',
-    keywords: ['emoteer', 'brand'],
-    category: 'custom',
-  },
-  {
-    shortcode: 'party_parrot',
-    // either a unicode string or an image URL
-    image: '/emotes/party-parrot.gif',
-    keywords: ['parrot', 'party'],
-    category: 'custom',
-  },
+const locals = [
+  { id: 'party-parrot', name: 'party_parrot', src: '/emotes/party-parrot.gif' },
+  { id: 'emoteer', name: 'emoteer', src: '/emotes/brand.png', category: 'brand' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <EmoteProvider customEmotes={customEmotes}>
+    <EmoteProvider locals={locals}>
       {children}
     </EmoteProvider>
   );
 }
 ```
 
-Custom emojis surface in:
+## Where they show up
 
-- `EmoteList.Search` (by shortcode or keyword)
-- `EmoteList.Tabs` (under the `category` you specify)
-- `EmoteAutocomplete` suggestions
-- `EmoteInput` / `EmoteTextArea` conversion
+| Component | Support |
+| --- | --- |
+| `EmoteList.Grid` | ✅ Rendered under a "Custom" section at the top. |
+| `EmoteList.Tabs` | ✅ "Custom" tab appears when `locals.length > 0`. |
+| `EmoteList.Search` | ✅ Matches against `name` and `category`. |
+| `EmoteList.Preview` | ✅ Image preview; copy button writes `:name:` to clipboard; can be favourited. |
+| `EmoteAutocomplete` | ✅ Suggested when typing `:<name>` — selecting inserts `:name:` (not a glyph). |
+| `EmoteInput` / `EmoteTextArea` | ❌ `<input>` / `<textarea>` can't embed images. `:name:` is preserved verbatim. |
+| `ReactionCounter` / `ReactionButton` | ❌ These accept raw emoji strings, not emotes. Pass the emoji/glyph directly and render an `<img>` yourself if needed. |
 
-## Localizing shortcodes
+## Reading the selection
 
-Pass a `locale` to switch the shortcode dictionary:
+All picker/autocomplete `onSelect` callbacks now fire with an `Emote` union — native or local. Use the `isLocalEmote` helper to branch:
 
 ```tsx
-<EmoteProvider locale="es">
+import { EmoteList, isLocalEmote, type Emote } from '@emoteer/react';
+
+function Picker() {
+  const handleSelect = (emote: Emote) => {
+    if (isLocalEmote(emote)) {
+      insertImage(emote.src);      // render your own <img>
+    } else {
+      insertText(emote.unicode);   // native glyph
+    }
+  };
+
+  return (
+    <EmoteList.Root onSelect={handleSelect}>
+      <EmoteList.Search />
+      <EmoteList.Tabs />
+      <EmoteList.Grid />
+      <EmoteList.Preview />
+    </EmoteList.Root>
+  );
+}
+```
+
+## Shortcode collisions
+
+If a local `name` collides with a native shortcode (e.g. you define `name: "smile"`), the local wins — locals are inserted into the shortcode index after natives, so the last writer wins.
+
+## Disabling natives
+
+If you want a brand-only picker with no Unicode emojis, set `natives={false}`:
+
+```tsx
+<EmoteProvider natives={false} locals={locals}>
   {children}
 </EmoteProvider>
 ```
 
-Bundled locales: `en`, `es`, `fr`, `de`, `pt`, `it`, `ja`, `zh`. Missing a locale? Supply your own:
+## Localising shortcodes
+
+Pass a BCP 47 `locale` to load a different native shortcode dictionary:
 
 ```tsx
-<EmoteProvider locale={{ id: 'eo', shortcodes: myShortcodes }}>
+<EmoteProvider locale="es" locals={locals}>
   {children}
 </EmoteProvider>
 ```
 
-## Disabling built-in emojis
-
-If you want to ship only your custom set — for a brand-specific picker, say — pass `includeDefaults={false}`:
-
-```tsx
-<EmoteProvider includeDefaults={false} customEmotes={customEmotes}>
-  {children}
-</EmoteProvider>
-```
-
-## Cloud-hosted datasets
-
-`@emoteer/core` exposes a `CloudConfig` for fetching emoji data at runtime. Good for tenant-specific emojis in multi-tenant apps.
-
-```tsx
-<EmoteProvider cloud={{ url: '/api/emojis', revalidate: 3600 }}>
-  {children}
-</EmoteProvider>
-```
+Bundled locales include `en`, `en-gb`, `es`, `es-mx`, `fr`, `de`, `it`, `ja`, `ko`, `pt`, `zh`, `zh-hant`, and many more. Unsupported tags fall back to `en` at runtime.

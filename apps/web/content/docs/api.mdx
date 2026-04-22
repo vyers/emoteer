@@ -1,77 +1,89 @@
 ---
 title: API reference
-description: Public types and constants exported from the library
+description: Public types and helpers exported from the library
 ---
 
-Every public type Emoteer exposes. Imported from either `@emoteer/core` (framework-agnostic) or `@emoteer/react` (re-exported for convenience).
+Everything public Emoteer exposes. Imported from either `@emoteer/core` (framework-agnostic) or `@emoteer/react` (re-exported for convenience).
 
 ## NativeEmoji
 
-The canonical shape of a Unicode emoji in Emoteer.
+The canonical shape of a Unicode emoji, mapped from [emojibase](https://emojibase.dev/).
 
 ```ts title="@emoteer/core"
-type NativeEmoji = {
-  unicode: string;
-  shortcodes: string[];
-  keywords: string[];
-  category: string;
-  skinTones?: string[];
-};
+interface NativeEmoji {
+  unicode: string;       // e.g. '😀'
+  label: string;         // human-readable name
+  shortcodes: string[];  // without colons, e.g. ['grinning_face']
+  group: number;         // emojibase group (0–9)
+  hexcode: string;       // e.g. '1F600'
+  tags?: string[];       // optional search tags
+}
 ```
 
 ## LocalEmote
 
-A custom emoji supplied through `EmoteProvider`. Can be a unicode character or an external image.
+A developer-defined image-based emote supplied through `EmoteProvider`.
 
 ```ts title="@emoteer/core"
-type LocalEmote = {
-  shortcode: string;
-  unicode?: string;
-  image?: string;
-  keywords?: string[];
+interface LocalEmote {
+  id: string;       // stable identifier
+  name: string;     // display name, also used as shortcode without colons
+  src: string;      // URL or path to the image
   category?: string;
-};
+}
 ```
+
+See [Custom emojis](/docs/guides/custom-emojis) for the full integration.
+
+## Emote
+
+Discriminated union of the two kinds an Emoteer component can render.
+
+```ts title="@emoteer/core"
+type Emote = NativeEmoji | LocalEmote;
+
+function isLocalEmote(e: Emote): e is LocalEmote; // 'src' in e
+function isNativeEmoji(e: Emote): e is NativeEmoji; // 'unicode' in e
+```
+
+Every `onSelect` callback in `EmoteList` and `EmoteAutocomplete` fires with an `Emote`. Use the helpers to narrow before consuming type-specific fields.
 
 ## Reaction
 
 The shape consumed by `ReactionCounter`.
 
 ```ts title="@emoteer/react"
-type Reaction = {
-  emoji: string;
+interface Reaction {
+  emoji: string; // unicode glyph or any string
   count: number;
   active: boolean;
-};
+}
 ```
 
 ## Locale
 
-Controls which shortcode dictionary is loaded.
+Controls which shortcode dictionary is loaded. BCP 47 tag.
 
 ```ts title="@emoteer/core"
 type SupportedLocale =
-  | 'en' | 'es' | 'fr' | 'de'
-  | 'pt' | 'it' | 'ja' | 'zh';
+  | 'bn' | 'da' | 'de' | 'en' | 'en-gb' | 'es' | 'es-mx' | 'et' | 'fi'
+  | 'fr' | 'hi' | 'hu' | 'it' | 'ja' | 'ko' | 'lt' | 'ms' | 'nb' | 'nl'
+  | 'pl' | 'pt' | 'ru' | 'sv' | 'th' | 'uk' | 'vi' | 'zh' | 'zh-hant';
 
-type Locale =
-  | SupportedLocale
-  | {
-      id: string;
-      shortcodes: Record<string, string>;
-    };
+type Locale = SupportedLocale | (string & {});
 ```
+
+Unsupported tags fall back to `'en'` at runtime.
 
 ## CloudConfig
 
-Configuration for fetching emoji data at runtime.
+Reserved for the forthcoming Emoteer Cloud tier.
 
 ```ts title="@emoteer/core"
-type CloudConfig = {
-  url: string;
-  revalidate?: number;
-  headers?: Record<string, string>;
-};
+interface CloudConfig {
+  projectId: string;
+  apiKey: string;
+}
 ```
 
 ## EmoteProviderProps
@@ -79,31 +91,52 @@ type CloudConfig = {
 Props accepted by `EmoteProvider`.
 
 ```ts title="@emoteer/react"
-type EmoteProviderProps = {
+interface EmoteProviderProps {
   children: React.ReactNode;
-  locale?: Locale;
-  customEmotes?: LocalEmote[];
-  includeDefaults?: boolean;
-  cloud?: CloudConfig;
-};
+  natives?: boolean;       // load Unicode emojis (default: true)
+  locals?: LocalEmote[];   // custom emotes
+  locale?: Locale;         // default: 'en'
+  cloud?: CloudConfig;     // reserved
+}
+```
+
+## useEmoteContext
+
+Runtime context exposed by `EmoteProvider`.
+
+```ts title="@emoteer/react"
+interface EmoteContextValue {
+  emojis: NativeEmoji[];
+  locals: LocalEmote[];
+  emotes: Emote[];                         // natives + locals
+  shortcodeIndex: Map<string, Emote>;      // `:name:` → emote
+  unicodeIndex: Map<string, NativeEmoji>;  // glyph → native
+  isLoading: boolean;
+  error: Error | null;
+}
 ```
 
 ## Imports
 
 ```ts title="your-app.ts"
 // Framework-agnostic — safe in any environment
-import type {
-  NativeEmoji,
-  LocalEmote,
-  Reaction,
-  Locale,
-  SupportedLocale,
-  CloudConfig,
+import {
+  isLocalEmote,
+  isNativeEmoji,
+  type NativeEmoji,
+  type LocalEmote,
+  type Emote,
+  type Locale,
+  type SupportedLocale,
+  type CloudConfig,
 } from '@emoteer/core';
 
 // Re-exported from the React binding
-import type {
-  NativeEmoji,
-  EmoteProviderProps,
+import {
+  isLocalEmote,
+  isNativeEmoji,
+  type Emote,
+  type EmoteProviderProps,
+  type Reaction,
 } from '@emoteer/react';
 ```

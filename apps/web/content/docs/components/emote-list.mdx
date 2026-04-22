@@ -21,12 +21,14 @@ description: Searchable, virtualized emoji picker with tabs, keyboard navigation
 ## Basic usage
 
 ```tsx title="components/picker.tsx"
-import { EmoteList } from '@emoteer/react';
+import { EmoteList, isLocalEmote } from '@emoteer/react';
 
 export function Picker() {
   return (
     <EmoteList.Root
-      onSelect={(emote) => console.log(emote.unicode)}
+      onSelect={(emote) =>
+        console.log(isLocalEmote(emote) ? `:${emote.name}:` : emote.unicode)
+      }
       className="w-80 rounded-3xl border"
     >
       <EmoteList.Search />
@@ -54,7 +56,7 @@ export function Picker() {
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `onSelect` | `(emote: NativeEmoji) => void` | Called when the user selects an emoji. |
+| `onSelect` | `(emote: Emote) => void` | Called when the user selects an emoji or a local emote. Narrow with `isLocalEmote`. |
 | `className` | `string` | Forwarded to the outer container. |
 
 ### `EmoteList.Search`
@@ -89,9 +91,13 @@ The preview slot shows the currently hovered emoji with its shortcode, a copy-to
 `EmoteListPicker` wires every slot together with the default layout. Use it when you want a full picker without composing the pieces yourself.
 
 ```tsx title="components/picker.tsx"
-import { EmoteListPicker } from '@emoteer/react';
+import { EmoteListPicker, isLocalEmote } from '@emoteer/react';
 
-<EmoteListPicker onSelect={(emote) => console.log(emote.unicode)} />;
+<EmoteListPicker
+  onSelect={(emote) =>
+    console.log(isLocalEmote(emote) ? `:${emote.name}:` : emote.unicode)
+  }
+/>;
 ```
 
 ## Styling

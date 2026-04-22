@@ -57,7 +57,7 @@ export function Composer() {
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `onSelect` | `(emote: NativeEmoji, nextValue: string) => void` | Called when a suggestion is chosen. The second argument is the final input value with the emoji inserted. |
+| `onSelect` | `(emote: Emote, nextValue: string) => void` | Called when a suggestion is chosen. The second argument is the final input value with the native unicode inserted (or `:name:` preserved for local emotes). |
 
 ### `EmoteAutocomplete.Input`
 

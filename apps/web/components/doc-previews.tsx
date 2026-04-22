@@ -6,17 +6,34 @@ import {
   EmoteList,
   EmoteProvider,
   EmoteTextArea,
+  isLocalEmote,
+  LocalEmote,
   ReactionButton,
   ReactionCounter,
   ReactionSlider,
-  type NativeEmoji,
+  type Emote,
   type Reaction,
 } from '@emoteer/react';
 import { useState, type ReactNode } from 'react';
 
+const customEmotes: LocalEmote[] = [
+  {
+    id: 'catJam',
+    name: 'catJam',
+    src: 'https://cdn.betterttv.net/emote/5f1b0186cf6d2144653d2970/3x.webp',
+    category: 'Custom Emotes'
+  },
+  {
+    id: 'parrot',
+    name: 'parrot',
+    src: 'https://cdn.betterttv.net/emote/59f06613ba7cdd47e9a4cad2/3x.webp',
+    category: 'Custom Emotes'
+  }
+]
+
 function Preview({ children }: { children: ReactNode }) {
   return (
-    <EmoteProvider>
+    <EmoteProvider locals={customEmotes}>
       <div className="not-prose my-6 flex min-h-48 items-center justify-center rounded-2xl border border-fd-border bg-fd-card/50 p-8">
         <div className="w-full max-w-sm">{children}</div>
       </div>
@@ -25,7 +42,7 @@ function Preview({ children }: { children: ReactNode }) {
 }
 
 export function EmoteListPreview() {
-  const [selected, setSelected] = useState<NativeEmoji | null>(null);
+  const [selected, setSelected] = useState<Emote | null>(null);
 
   return (
     <Preview>
@@ -43,9 +60,17 @@ export function EmoteListPreview() {
           <div className="flex items-center justify-between rounded-lg border border-fd-border bg-fd-background px-3 py-2 text-xs">
             <span className="text-fd-muted-foreground">Selected</span>
             <span className="flex items-center gap-2">
-              <span className="text-lg">{selected.unicode}</span>
+              {isLocalEmote(selected) ? (
+                <img
+                  src={selected.src}
+                  alt={selected.name}
+                  className="inline-block h-5 w-5 object-contain"
+                />
+              ) : (
+                <span className="text-lg">{selected.unicode}</span>
+              )}
               <span className="font-mono text-fd-muted-foreground">
-                :{selected.shortcodes[0]}:
+                :{isLocalEmote(selected) ? selected.name : selected.shortcodes[0]}:
               </span>
             </span>
           </div>
@@ -179,7 +204,7 @@ export function ReactionButtonPreview() {
             <ReactionButton.Content>
               <EmoteList.Root
                 onSelect={(e) => {
-                  setLast(e.unicode);
+                  setLast(isLocalEmote(e) ? `:${e.name}:` : e.unicode);
                   setOpen(false);
                 }}
                 className="w-80 rounded-3xl border border-fd-border bg-fd-popover"

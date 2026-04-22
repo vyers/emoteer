@@ -159,11 +159,13 @@ Loads emoji data once per app and exposes it via context.
 Access context with `useEmoteContext()`:
 
 ```tsx
-const { emojis, shortcodeIndex, unicodeIndex, isLoading, error } =
+const { emojis, locals, emotes, shortcodeIndex, unicodeIndex, isLoading, error } =
   useEmoteContext();
 ```
 
-`error` is populated if `loadEmojis` rejects — useful for surfacing retry UI.
+`emotes` is the combined list (natives + locals) — use it for any UI that renders both kinds. `shortcodeIndex` covers both. `unicodeIndex` only covers natives. `error` is populated if `loadEmojis` rejects — useful for surfacing retry UI.
+
+See [Custom emojis](/docs/guides/custom-emojis) for the full `locals` workflow.
 
 ### `EmoteList` / `EmoteListPicker`
 
@@ -181,15 +183,19 @@ Virtualized emoji picker with search, category tabs, and a hover preview panel.
 `EmoteListPicker` is the default arrangement — same composition, zero config.
 
 ```tsx
-<EmoteListPicker onSelect={(emoji) => insert(emoji.unicode)} />
+import { EmoteListPicker, isLocalEmote } from '@emoteer/react';
+
+<EmoteListPicker
+  onSelect={(e) => insert(isLocalEmote(e) ? `:${e.name}:` : e.unicode)}
+/>
 ```
 
 **Root props**
 
-| Prop        | Type                                | Default | Description                                   |
-| ----------- | ----------------------------------- | ------- | --------------------------------------------- |
-| `onSelect`  | `(emoji: NativeEmoji) => void`      | —       | Fires when a cell is clicked.                 |
-| `className` | `string`                            | —       | Override the outer container classes.         |
+| Prop        | Type                          | Default | Description                                   |
+| ----------- | ----------------------------- | ------- | --------------------------------------------- |
+| `onSelect`  | `(emote: Emote) => void`      | —       | Fires when a cell is clicked. `Emote` is a discriminated union — use `isLocalEmote(e)` to narrow. |
+| `className` | `string`                      | —       | Override the outer container classes.         |
 
 **Subcomponents**
 
@@ -213,13 +219,15 @@ Virtualized emoji picker with search, category tabs, and a hover preview panel.
 Inline `:shortcode` suggestions anchored to an input via Floating UI. Implements the [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
 
 ```tsx
-<EmoteAutocomplete.Root onSelect={(emoji, value) => setText(value)}>
+<EmoteAutocomplete.Root onSelect={(emote, value) => setText(value)}>
   <EmoteAutocomplete.Input defaultValue="" />
   <EmoteAutocomplete.Content>
     <EmoteAutocomplete.List />
   </EmoteAutocomplete.Content>
 </EmoteAutocomplete.Root>
 ```
+
+Selecting a native replaces `:query` with the unicode glyph. Selecting a local emote replaces it with `:name:` (verbatim) — render it as an image in your own markup.
 
 **Keyboard**
 
@@ -234,7 +242,7 @@ Inline `:shortcode` suggestions anchored to an input via Floating UI. Implements
 
 The input carries `role="combobox"`, `aria-autocomplete="list"`, `aria-expanded`, `aria-controls` and `aria-activedescendant`. The listbox has a stable `id` tied to the combobox.
 
-> **Uncontrolled by design.** The `Root` tracks the live input value internally to detect the `:shortcode` trigger. Use `defaultValue`, read the final text via `onSelect(emoji, value)`.
+> **Uncontrolled by design.** The `Root` tracks the live input value internally to detect the `:shortcode` trigger. Use `defaultValue`, read the final text via `onSelect(emote, value)`.
 
 ### `EmoteInput` / `EmoteTextArea`
 
@@ -349,14 +357,15 @@ Intensity slider (0–100 by default) built on `@zag-js/slider`, with an emoji t
 
 ### `useEmoteContext()`
 
-Returns the full emoji context:
+Returns the full emote context:
 
 ```ts
 {
-  emojis: NativeEmoji[];
-  shortcodeIndex: Map<string, NativeEmoji>;
-  unicodeIndex: Map<string, NativeEmoji>;
-  locals: LocalEmote[];
+  emojis: NativeEmoji[];              // natives only
+  locals: LocalEmote[];                // developer-defined
+  emotes: Emote[];                     // natives + locals, combined
+  shortcodeIndex: Map<string, Emote>;  // `:name:` → native or local
+  unicodeIndex: Map<string, NativeEmoji>; // natives only (locals have no unicode)
   isLoading: boolean;
   error: Error | null;
 }
@@ -369,13 +378,16 @@ Throws if called outside `EmoteProvider`.
 Re-exported from `@emoteer/core` for consumer convenience:
 
 ```ts
-import type {
-  NativeEmoji,
-  LocalEmote,
-  CloudConfig,
-  Reaction,
-  Locale,
-  SupportedLocale,
+import {
+  isLocalEmote,
+  isNativeEmoji,
+  type NativeEmoji,
+  type LocalEmote,
+  type Emote,
+  type CloudConfig,
+  type Reaction,
+  type Locale,
+  type SupportedLocale,
 } from "@emoteer/react";
 ```
 
