@@ -1,5 +1,7 @@
 import {
   EMOJI_GROUPS,
+  isLocalEmote,
+  type Emote,
   type EmojiGroupNumber,
   type NativeEmoji,
 } from "@emoteer/core";
@@ -20,19 +22,72 @@ import { Icon } from "../internal/icon.js";
 import { useEmoteContext } from "../provider.js";
 import { ScrollArea } from "../internal/scroll-area/index.js";
 
+// ─── Emote helpers ────────────────────────────────────────────────────────────
+
+/** Stable React key / favourite storage key for any emote. */
+function emoteKey(e: Emote): string {
+  return isLocalEmote(e) ? `local:${e.id}` : `native:${e.hexcode}`;
+}
+
+/** Natural group an emote belongs to: locals → Custom (-2), natives → their own. */
+function emoteGroup(e: Emote): EmojiGroupNumber {
+  return isLocalEmote(e) ? -2 : (e.group as EmojiGroupNumber);
+}
+
+function emoteLabel(e: Emote): string {
+  return isLocalEmote(e) ? e.name : e.label;
+}
+
+function emoteShortcode(e: Emote): string {
+  return isLocalEmote(e) ? e.name : (e.shortcodes[0] ?? "");
+}
+
+/** Text written to the clipboard by the Preview copy button. */
+function emoteCopyText(e: Emote): string {
+  return isLocalEmote(e) ? `:${e.name}:` : e.unicode;
+}
+
+function matchesQuery(e: Emote, q: string): boolean {
+  if (!q) return true;
+  const lower = q.toLowerCase();
+  if (isLocalEmote(e)) {
+    return (
+      e.name.toLowerCase().includes(lower) ||
+      (e.category?.toLowerCase().includes(lower) ?? false)
+    );
+  }
+  return (
+    e.label.toLowerCase().includes(lower) ||
+    e.shortcodes.some((s) => s.includes(lower)) ||
+    (e.tags?.some((t) => t.includes(lower)) ?? false)
+  );
+}
+
+// ─── Favourites persistence ───────────────────────────────────────────────────
+
+const FAVORITES_STORAGE_KEY = "emoteer-favorites";
+
+/**
+ * Legacy entries were bare hexcodes. Normalise to the prefixed form so native
+ * and local emotes can coexist in the same list.
+ */
+function migrateFavoriteKey(raw: string): string {
+  return raw.includes(":") ? raw : `native:${raw}`;
+}
+
 // ─── Context ─────────────────────────────────────────────────────────────────
 
 interface EmoteListContextValue {
   setQuery: (q: string) => void;
-  setActiveGroup: (g: number | "all") => void;
-  hoveredEmoji: NativeEmoji | null;
-  setHoveredEmoji: (e: NativeEmoji | null) => void;
-  filteredEmojis: NativeEmoji[];
-  onSelect: (emoji: NativeEmoji) => void;
+  setActiveGroup: (g: EmojiGroupNumber | "all") => void;
+  hoveredEmote: Emote | null;
+  setHoveredEmote: (e: Emote | null) => void;
+  filteredEmotes: Emote[];
+  onSelect: (emote: Emote) => void;
   query: string;
-  activeGroup: number | "all";
+  activeGroup: EmojiGroupNumber | "all";
   favorites: string[];
-  toggleFavorite: (hexcode: string) => void;
+  toggleFavorite: (emote: Emote) => void;
 }
 
 const EmoteListContext = createContext<EmoteListContextValue | null>(null);
@@ -47,24 +102,31 @@ function useEmoteListContext() {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export interface EmoteListRootProps {
-  onSelect?: (emoji: NativeEmoji) => void;
+  onSelect?: (emote: Emote) => void;
   className?: string;
   children: ReactNode;
 }
 
 function Root({ onSelect, className, children }: EmoteListRootProps) {
-  const { emojis } = useEmoteContext();
+  const { emotes } = useEmoteContext();
   const [query, setQuery] = useState("");
-  const [activeGroup, setActiveGroup] = useState<number | "all">("all");
-  const [hoveredEmoji, setHoveredEmoji] = useState<NativeEmoji | null>(null);
+  const [activeGroup, setActiveGroup] = useState<EmojiGroupNumber | "all">(
+    "all",
+  );
+  const [hoveredEmote, setHoveredEmote] = useState<Emote | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // Load favorites on mount
+  // Load favorites on mount (with transparent migration from legacy hex-only format)
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("emoteer-favorites");
-      if (stored) setFavorites(JSON.parse(stored));
+      const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as unknown;
+        if (Array.isArray(parsed)) {
+          setFavorites(parsed.filter((k): k is string => typeof k === "string").map(migrateFavoriteKey));
+        }
+      }
     } catch (e) {
       console.error("Failed to read favorites from localStorage", e);
     }
@@ -75,57 +137,27 @@ function Root({ onSelect, className, children }: EmoteListRootProps) {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem("emoteer-favorites", JSON.stringify(favorites));
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
     } catch (e) {
       console.error("Failed to persist favorites to localStorage", e);
     }
   }, [favorites, hydrated]);
 
-  const toggleFavorite = useCallback((hexcode: string) => {
+  const toggleFavorite = useCallback((emote: Emote) => {
+    const key = emoteKey(emote);
     setFavorites((prev) =>
-      prev.includes(hexcode)
-        ? prev.filter((h) => h !== hexcode)
-        : [...prev, hexcode],
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   }, []);
 
-  const filteredEmojis = useMemo(() => {
-    let list = emojis;
-    const q = query.trim().toLowerCase();
-
-    if (q) {
-      list = list.filter(
-        (e) =>
-          e.label.toLowerCase().includes(q) ||
-          e.shortcodes.some((s) => s.includes(q)) ||
-          e.tags?.some((t) => t.includes(q)),
-      );
-    }
-
-    if (favorites.length > 0) {
-      const favList = favorites
-        .map((hex) => emojis.find((e) => e.hexcode === hex))
-        .filter((e): e is NativeEmoji => !!e)
-        .map((e) => ({ ...e, group: -1 as EmojiGroupNumber }));
-
-      if (q) {
-        const matchingFavs = favList.filter(
-          (e) =>
-            e.label.toLowerCase().includes(q) ||
-            e.shortcodes.some((s) => s.includes(q)) ||
-            e.tags?.some((t) => t.includes(q)),
-        );
-        list = [...matchingFavs, ...list];
-      } else {
-        list = [...favList, ...list];
-      }
-    }
-
-    return list;
-  }, [emojis, query, favorites]);
+  const filteredEmotes = useMemo(() => {
+    const q = query.trim();
+    if (!q) return emotes;
+    return emotes.filter((e) => matchesQuery(e, q));
+  }, [emotes, query]);
 
   const handleSelect = useCallback(
-    (emoji: NativeEmoji) => onSelect?.(emoji),
+    (emote: Emote) => onSelect?.(emote),
     [onSelect],
   );
 
@@ -136,9 +168,9 @@ function Root({ onSelect, className, children }: EmoteListRootProps) {
         setQuery,
         activeGroup,
         setActiveGroup,
-        hoveredEmoji,
-        setHoveredEmoji,
-        filteredEmojis,
+        hoveredEmote,
+        setHoveredEmote,
+        filteredEmotes,
         favorites,
         toggleFavorite,
         onSelect: handleSelect,
@@ -193,6 +225,7 @@ function Search({
 
 /** Representative emoji for each emojibase group number. */
 const GROUP_ICONS: Record<number, string> = {
+  [-2]: "✨",
   [-1]: "🕒",
   0: "😊",
   1: "👋",
@@ -209,8 +242,8 @@ export interface EmoteListTabsProps {
   /**
    * Group numbers to display as tabs.
    * Defaults to all groups. Pass a subset to hide specific categories.
-   * Group numbers: -1=Most Used, 0=Smileys, 1=People, 3=Animals, 4=Food,
-   *   5=Travel, 6=Activities, 7=Objects, 8=Symbols, 9=Flags
+   * Group numbers: -2=Custom (local emotes), -1=Most Used, 0=Smileys, 1=People,
+   *   3=Animals, 4=Food, 5=Travel, 6=Activities, 7=Objects, 8=Symbols, 9=Flags
    */
   groups?: EmojiGroupNumber[];
   /** Whether to show emoji icons or text labels in the tabs. Defaults to 'emoji'. */
@@ -223,7 +256,13 @@ const ALL_GROUPS: Record<number, string> = {
 };
 
 function Tabs({ groups, display = "emoji", className }: EmoteListTabsProps) {
-  const { activeGroup, setActiveGroup, favorites } = useEmoteListContext();
+  const { activeGroup, setActiveGroup, favorites, filteredEmotes } =
+    useEmoteListContext();
+
+  const hasLocals = useMemo(
+    () => filteredEmotes.some(isLocalEmote),
+    [filteredEmotes],
+  );
 
   const entries = useMemo(() => {
     let list = Object.entries(ALL_GROUPS) as [string, string][];
@@ -234,14 +273,19 @@ function Tabs({ groups, display = "emoji", className }: EmoteListTabsProps) {
       );
     }
 
-    // Only show "Most Used" (-1) if there are favorites
+    // Only show "Custom" (-2) when there are local emotes present.
+    if (!hasLocals) {
+      list = list.filter(([num]) => num !== "-2");
+    }
+
+    // Only show "Most Used" (-1) if there are favorites.
     if (favorites.length === 0) {
       list = list.filter(([num]) => num !== "-1");
     }
 
-    // Sort to ensure "Most Used" (-1) is at the top
+    // Sort so "Custom" (-2) sits above "Most Used" (-1) and both above the rest.
     return [...list].sort((a, b) => Number(a[0]) - Number(b[0]));
-  }, [groups, favorites]);
+  }, [groups, favorites, hasLocals]);
 
   return (
     <ScrollArea.Root className={cn("border-b border-em-border", className)}>
@@ -291,21 +335,46 @@ const HEADER_HEIGHT = 22;
 
 type GridItem =
   | { kind: "header"; group: EmojiGroupNumber; label: string }
-  | { kind: "row"; emojis: NativeEmoji[] };
+  | { kind: "row"; emotes: Emote[] };
 
 export interface EmoteListGridProps {
   height?: number;
   className?: string;
 }
 
+/**
+ * Renders a single emote inside a grid cell or preview slot.
+ * Natives show their unicode glyph; locals render their image `src`.
+ */
+function EmoteGlyph({
+  emote,
+  className,
+}: {
+  emote: Emote;
+  className?: string;
+}) {
+  if (isLocalEmote(emote)) {
+    return (
+      <img
+        src={emote.src}
+        alt={emote.name}
+        className={cn("inline-block w-6 h-6 object-contain", className)}
+        draggable={false}
+      />
+    );
+  }
+  return <span className={className}>{emote.unicode}</span>;
+}
+
 function Grid({ height = 280, className }: EmoteListGridProps) {
   const {
-    filteredEmojis,
-    setHoveredEmoji,
+    filteredEmotes,
+    setHoveredEmote,
     onSelect,
     activeGroup,
     setActiveGroup,
     query,
+    favorites,
   } = useEmoteListContext();
   const { isLoading } = useEmoteContext();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -316,23 +385,31 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
   // Always show headers to maintain context
   const withHeaders = true;
 
-  // Build flat list: headers + emoji rows
+  // Build flat list: headers + emote rows, with favorites surfaced at the top as "Most Used".
   const items = useMemo<GridItem[]>(() => {
     const result: GridItem[] = [];
-    const groupedMap = new Map<number, NativeEmoji[]>();
 
-    for (const e of filteredEmojis) {
-      if (!groupedMap.has(e.group)) {
-        groupedMap.set(e.group, []);
-      }
-      groupedMap.get(e.group)!.push(e);
+    // Build a Map so we can emit the synthetic -1 section first while still
+    // keeping each emote in its natural group below.
+    const groupedMap = new Map<number, Emote[]>();
+
+    if (favorites.length > 0) {
+      const favSet = new Set(favorites);
+      const favEmotes = filteredEmotes.filter((e) => favSet.has(emoteKey(e)));
+      if (favEmotes.length > 0) groupedMap.set(-1, favEmotes);
     }
 
-    // Sort to keep "Most Used" (-1) first
+    for (const e of filteredEmotes) {
+      const g = emoteGroup(e);
+      if (!groupedMap.has(g)) groupedMap.set(g, []);
+      groupedMap.get(g)!.push(e);
+    }
+
+    // Sort groups ascending — Custom (-2), Most Used (-1), then 0..9.
     const sortedGroups = Array.from(groupedMap.keys()).sort((a, b) => a - b);
 
     for (const group of sortedGroups) {
-      const groupEmojis = groupedMap.get(group)!;
+      const groupEmotes = groupedMap.get(group)!;
       if (withHeaders) {
         result.push({
           kind: "header",
@@ -340,12 +417,12 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
           label: ALL_GROUPS[group as EmojiGroupNumber] ?? "",
         });
       }
-      for (let i = 0; i < groupEmojis.length; i += COLUMNS) {
-        result.push({ kind: "row", emojis: groupEmojis.slice(i, i + COLUMNS) });
+      for (let i = 0; i < groupEmotes.length; i += COLUMNS) {
+        result.push({ kind: "row", emotes: groupEmotes.slice(i, i + COLUMNS) });
       }
     }
     return result;
-  }, [filteredEmojis, withHeaders]);
+  }, [filteredEmotes, favorites, withHeaders]);
 
   // Precompute every header item index + its absolute scroll offset.
   const headerIndices = useMemo(() => {
@@ -521,7 +598,7 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
               );
             }
 
-            // Emoji row
+            // Emote row
             return (
               <div
                 key={`r-${vItem.index}`}
@@ -537,26 +614,32 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
                   alignItems: "center",
                 }}
               >
-                {item.emojis.map((emoji) => (
-                  <button
-                    key={emoji.hexcode}
-                    role="gridcell"
-                    type="button"
-                    title={emoji.label}
-                    aria-label={emoji.label}
-                    onMouseEnter={() => setHoveredEmoji(emoji)}
-                    onFocus={() => setHoveredEmoji(emoji)}
-                    onClick={() => onSelect(emoji)}
-                    style={{ flex: `0 0 ${100 / COLUMNS}%`, height: ROW_HEIGHT }}
-                    className={cn(
-                      "inline-flex items-center justify-center text-2xl",
-                      "rounded-md hover:bg-em-hover cursor-pointer select-none p-0.5",
-                      "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary",
-                    )}
-                  >
-                    {emoji.unicode}
-                  </button>
-                ))}
+                {item.emotes.map((emote) => {
+                  const label = emoteLabel(emote);
+                  return (
+                    <button
+                      key={emoteKey(emote)}
+                      role="gridcell"
+                      type="button"
+                      title={label}
+                      aria-label={label}
+                      onMouseEnter={() => setHoveredEmote(emote)}
+                      onFocus={() => setHoveredEmote(emote)}
+                      onClick={() => onSelect(emote)}
+                      style={{
+                        flex: `0 0 ${100 / COLUMNS}%`,
+                        height: ROW_HEIGHT,
+                      }}
+                      className={cn(
+                        "inline-flex items-center justify-center text-2xl",
+                        "rounded-md hover:bg-em-hover cursor-pointer select-none p-0.5",
+                        "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary",
+                      )}
+                    >
+                      <EmoteGlyph emote={emote} />
+                    </button>
+                  );
+                })}
               </div>
             );
           })}
@@ -574,23 +657,22 @@ export interface EmoteListPreviewProps {
 }
 
 function Preview({ className }: EmoteListPreviewProps) {
-  const { hoveredEmoji, toggleFavorite, favorites } = useEmoteListContext();
+  const { hoveredEmote, toggleFavorite, favorites } = useEmoteListContext();
   const [copied, setCopied] = useState(false);
 
-  const isFavorited = hoveredEmoji
-    ? favorites.includes(hoveredEmoji.hexcode)
+  const isFavorited = hoveredEmote
+    ? favorites.includes(emoteKey(hoveredEmote))
     : false;
 
   const handleCopy = async () => {
-    if (!hoveredEmoji) return;
-    await navigator.clipboard.writeText(hoveredEmoji.unicode);
+    if (!hoveredEmote) return;
+    await navigator.clipboard.writeText(emoteCopyText(hoveredEmote));
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
 
-  const shortcode = hoveredEmoji?.shortcodes[0]
-    ? `:${hoveredEmoji.shortcodes[0]}:`
-    : "";
+  const shortcodeText = hoveredEmote ? emoteShortcode(hoveredEmote) : "";
+  const shortcode = shortcodeText ? `:${shortcodeText}:` : "";
 
   return (
     <div
@@ -600,11 +682,11 @@ function Preview({ className }: EmoteListPreviewProps) {
       )}
     >
       <span className="text-2xl leading-none" aria-hidden="true">
-        {hoveredEmoji?.unicode ?? ""}
+        {hoveredEmote ? <EmoteGlyph emote={hoveredEmote} /> : null}
       </span>
       <div className="flex flex-col w-full items-start justify-center leading-3 font-medium text-sm">
         <span className="capitalize">
-          {hoveredEmoji?.label ?? "Hover an emoji"}
+          {hoveredEmote ? emoteLabel(hoveredEmote) : "Hover an emoji"}
         </span>
         {shortcode && <small className="text-em-muted">{shortcode}</small>}
       </div>
@@ -616,7 +698,7 @@ function Preview({ className }: EmoteListPreviewProps) {
           onClick={handleCopy}
           className={cn(
             "text-em-muted hover:text-em-fg transition-colors",
-            !hoveredEmoji && "pointer-events-none opacity-40",
+            !hoveredEmote && "pointer-events-none opacity-40",
           )}
         >
           <Icon name={copied ? "check" : "copy"} size={18} />
@@ -627,10 +709,10 @@ function Preview({ className }: EmoteListPreviewProps) {
             isFavorited ? "Remove from favourites" : "Add to favourites"
           }
           title="Favourite"
-          onClick={() => hoveredEmoji && toggleFavorite(hoveredEmoji.hexcode)}
+          onClick={() => hoveredEmote && toggleFavorite(hoveredEmote)}
           className={cn(
             "transition-colors",
-            !hoveredEmoji && "pointer-events-none opacity-40",
+            !hoveredEmote && "pointer-events-none opacity-40",
             isFavorited
               ? "text-yellow-500 hover:text-yellow-600"
               : "text-em-muted hover:text-em-fg",
@@ -655,7 +737,7 @@ export function EmoteListPicker({
   onSelect,
   className,
 }: {
-  onSelect?: (emoji: NativeEmoji) => void;
+  onSelect?: (emote: Emote) => void;
   className?: string;
 }) {
   return (

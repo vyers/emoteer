@@ -1,5 +1,5 @@
 import { Portal } from "@zag-js/react";
-import type { NativeEmoji } from "@emoteer/core";
+import { isLocalEmote, type Emote } from "@emoteer/core";
 import { cn } from "../internal/cn.js";
 import {
   autoUpdate,
@@ -24,19 +24,52 @@ import {
 } from "react";
 import { useEmoteContext } from "../provider.js";
 
+// ─── Emote helpers (local to this module) ─────────────────────────────────────
+
+function emoteKey(e: Emote): string {
+  return isLocalEmote(e) ? `local:${e.id}` : `native:${e.hexcode}`;
+}
+
+function emoteLabel(e: Emote): string {
+  return isLocalEmote(e) ? e.name : e.label;
+}
+
+/**
+ * Text that replaces the `:query` trigger when an emote is selected.
+ * Natives collapse to their unicode glyph; locals stay as `:name:` so the
+ * consumer can render them as images in their own markup.
+ */
+function emoteReplacement(e: Emote): string {
+  return isLocalEmote(e) ? `:${e.name}:` : e.unicode;
+}
+
+function matchesQuery(e: Emote, q: string): boolean {
+  const lower = q.toLowerCase();
+  if (isLocalEmote(e)) {
+    return (
+      e.name.toLowerCase().includes(lower) ||
+      (e.category?.toLowerCase().includes(lower) ?? false)
+    );
+  }
+  return (
+    e.shortcodes.some((s) => s.includes(lower)) ||
+    e.label.toLowerCase().includes(lower)
+  );
+}
+
 // ─── Context ──────────────────────────────────────────────────────────────────
 
 interface EmoteAutocompleteContextValue {
   isOpen: boolean;
-  suggestions: NativeEmoji[];
+  suggestions: Emote[];
   activeIndex: number;
   query: string;
   listboxId: string;
-  getOptionId: (hexcode: string) => string;
+  getOptionId: (key: string) => string;
   setReferenceEl: (el: HTMLElement | null) => void;
   floatingRef: (el: HTMLElement | null) => void;
   floatingStyles: CSSProperties;
-  selectSuggestion: (emoji: NativeEmoji) => void;
+  selectSuggestion: (emote: Emote) => void;
   handleInputChange: (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -63,12 +96,12 @@ const TRIGGER_PATTERN = /:[\p{L}\p{N}_]*$/u;
 const MAX_SUGGESTIONS = 8;
 
 export interface EmoteAutocompleteRootProps {
-  onSelect?: (emoji: NativeEmoji, value: string) => void;
+  onSelect?: (emote: Emote, value: string) => void;
   children: ReactNode;
 }
 
 function Root({ onSelect, children }: EmoteAutocompleteRootProps) {
-  const { emojis } = useEmoteContext();
+  const { emotes } = useEmoteContext();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -76,7 +109,7 @@ function Root({ onSelect, children }: EmoteAutocompleteRootProps) {
   const baseId = useId();
   const listboxId = `${baseId}-listbox`;
   const getOptionId = useCallback(
-    (hexcode: string) => `${baseId}-option-${hexcode}`,
+    (key: string) => `${baseId}-option-${key}`,
     [baseId],
   );
 
@@ -88,17 +121,10 @@ function Root({ onSelect, children }: EmoteAutocompleteRootProps) {
     whileElementsMounted: autoUpdate,
   });
 
-  const suggestions = useMemo(() => {
+  const suggestions = useMemo<Emote[]>(() => {
     if (!query) return [];
-    const q = query.toLowerCase();
-    return emojis
-      .filter(
-        (e) =>
-          e.shortcodes.some((s) => s.includes(q)) ||
-          e.label.toLowerCase().includes(q),
-      )
-      .slice(0, MAX_SUGGESTIONS);
-  }, [emojis, query]);
+    return emotes.filter((e) => matchesQuery(e, query)).slice(0, MAX_SUGGESTIONS);
+  }, [emotes, query]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -122,15 +148,15 @@ function Root({ onSelect, children }: EmoteAutocompleteRootProps) {
   );
 
   const selectSuggestion = useCallback(
-    (emoji: NativeEmoji) => {
+    (emote: Emote) => {
       const newValue = inputValueRef.current.replace(
         TRIGGER_PATTERN,
-        emoji.unicode,
+        emoteReplacement(emote),
       );
       inputValueRef.current = newValue;
       setIsOpen(false);
       setQuery("");
-      onSelect?.(emoji, newValue);
+      onSelect?.(emote, newValue);
     },
     [onSelect],
   );
@@ -194,7 +220,7 @@ export interface EmoteAutocompleteInputProps extends React.InputHTMLAttributes<H
  * Uncontrolled by design: the Root tracks the live value internally to detect
  * the `:shortcode` trigger and to replace the match on selection. Use
  * `defaultValue`, not `value`, and read the final text via the Root's
- * `onSelect(emoji, value)` callback.
+ * `onSelect(emote, value)` callback.
  */
 function Input({
   className,
@@ -214,10 +240,10 @@ function Input({
   } = useAutocompleteContext();
 
   const expanded = isOpen && suggestions.length > 0;
-  const activeDescendant =
-    expanded && suggestions[activeIndex]
-      ? getOptionId(suggestions[activeIndex].hexcode)
-      : undefined;
+  const activeSuggestion = expanded ? suggestions[activeIndex] : undefined;
+  const activeDescendant = activeSuggestion
+    ? getOptionId(emoteKey(activeSuggestion))
+    : undefined;
 
   return (
     <input
@@ -293,25 +319,38 @@ function List({ className }: EmoteAutocompleteListProps) {
         className,
       )}
     >
-      {suggestions.map((emoji, index) => (
-        <button
-          key={emoji.hexcode}
-          id={getOptionId(emoji.hexcode)}
-          role="option"
-          type="button"
-          aria-selected={index === activeIndex}
-          title={emoji.label}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => selectSuggestion(emoji)}
-          className={cn(
-            "inline-flex items-center justify-center text-2xl rounded-md",
-            "cursor-pointer select-none h-fit p-0.5 transition-colors",
-            index === activeIndex ? "bg-em-hover" : "hover:bg-em-hover",
-          )}
-        >
-          {emoji.unicode}
-        </button>
-      ))}
+      {suggestions.map((emote, index) => {
+        const key = emoteKey(emote);
+        const label = emoteLabel(emote);
+        return (
+          <button
+            key={key}
+            id={getOptionId(key)}
+            role="option"
+            type="button"
+            aria-selected={index === activeIndex}
+            title={label}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => selectSuggestion(emote)}
+            className={cn(
+              "inline-flex items-center justify-center text-2xl rounded-md",
+              "cursor-pointer select-none h-fit p-0.5 transition-colors",
+              index === activeIndex ? "bg-em-hover" : "hover:bg-em-hover",
+            )}
+          >
+            {isLocalEmote(emote) ? (
+              <img
+                src={emote.src}
+                alt={emote.name}
+                className="inline-block w-6 h-6 object-contain"
+                draggable={false}
+              />
+            ) : (
+              emote.unicode
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

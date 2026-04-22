@@ -2,10 +2,13 @@
 export type {
   NativeEmoji,
   LocalEmote,
+  Emote,
   CloudConfig,
   Locale,
   SupportedLocale,
 } from "@emoteer/core";
+
+export { isLocalEmote, isNativeEmoji } from "@emoteer/core";
 
 // Provider
 export { EmoteProvider, useEmoteContext } from "./provider.js";

@@ -3,6 +3,7 @@ import {
   buildUnicodeIndex,
   loadEmojis,
   type CloudConfig,
+  type Emote,
   type LocalEmote,
   type Locale,
   type NativeEmoji,
@@ -17,10 +18,16 @@ import {
 } from 'react';
 
 interface EmoteContextValue {
+  /** Native Unicode emojis loaded for the active locale. */
   emojis: NativeEmoji[];
-  shortcodeIndex: Map<string, NativeEmoji>;
-  unicodeIndex: Map<string, NativeEmoji>;
+  /** Developer-defined custom emotes passed to the provider. */
   locals: LocalEmote[];
+  /** Natives + locals combined. Locals are listed last so they override natives on shortcode collisions. */
+  emotes: Emote[];
+  /** `:shortcode:` → emote. Includes both natives and locals. */
+  shortcodeIndex: Map<string, Emote>;
+  /** unicode glyph → native emoji. Locals are excluded (no unicode form). */
+  unicodeIndex: Map<string, NativeEmoji>;
   isLoading: boolean;
   error: Error | null;
 }
@@ -85,12 +92,24 @@ export function EmoteProvider({
     };
   }, [natives, locale]);
 
-  const shortcodeIndex = useMemo(() => buildShortcodeIndex(emojis), [emojis]);
+  const emotes = useMemo<Emote[]>(
+    () => [...emojis, ...locals],
+    [emojis, locals],
+  );
+  const shortcodeIndex = useMemo(() => buildShortcodeIndex(emotes), [emotes]);
   const unicodeIndex = useMemo(() => buildUnicodeIndex(emojis), [emojis]);
 
   return (
     <EmoteContext.Provider
-      value={{ emojis, shortcodeIndex, unicodeIndex, locals, isLoading, error }}
+      value={{
+        emojis,
+        locals,
+        emotes,
+        shortcodeIndex,
+        unicodeIndex,
+        isLoading,
+        error,
+      }}
     >
       {children}
     </EmoteContext.Provider>
