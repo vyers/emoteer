@@ -15,12 +15,16 @@ npm install @emoteer/react
 ```
 
 ```tsx
-import { EmoteProvider, EmoteListPicker } from "@emoteer/react";
+import { EmoteProvider, EmoteListPicker, isLocalEmote } from "@emoteer/react";
 
 export function App() {
   return (
     <EmoteProvider locale="en">
-      <EmoteListPicker onSelect={(e) => console.log(e.unicode)} />
+      <EmoteListPicker
+        onSelect={(e) =>
+          console.log(isLocalEmote(e) ? `:${e.name}:` : e.unicode)
+        }
+      />
     </EmoteProvider>
   );
 }
