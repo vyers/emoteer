@@ -1,6 +1,6 @@
 {
   "name": "@emoteer/core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Framework-agnostic core for Emoteer: emoji loading, indexes, types, and shortcode utilities.",
   "license": "MIT",
   "author": "vyers <vyers.dev@gmail.com>",
