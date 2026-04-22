@@ -27,14 +27,35 @@ export interface LocalEmote {
   category?: string;
 }
 
+/** Any emote the library knows about — native Unicode or developer-defined local. */
+export type Emote = NativeEmoji | LocalEmote;
+
+/**
+ * Structural discriminator for {@link Emote}: local emotes carry an `src`,
+ * natives don't. Prefer this over `'src' in e` at call sites.
+ */
+export function isLocalEmote(emote: Emote): emote is LocalEmote {
+  return "src" in emote;
+}
+
+export function isNativeEmoji(emote: Emote): emote is NativeEmoji {
+  return "unicode" in emote;
+}
+
 /** Credentials for Emoteer Cloud (Tier 2). */
 export interface CloudConfig {
   projectId: string;
   apiKey: string;
 }
 
-/** Emojibase group number → display name mapping. */
+/**
+ * Emojibase group number → display name mapping.
+ *
+ * `-2` (Custom) groups developer-defined {@link LocalEmote}s.
+ * `-1` (Most Used) groups user favourites.
+ */
 export const EMOJI_GROUPS = {
+  [-2]: "Custom",
   [-1]: "Most Used",
   0: "Smileys & Emotion",
   1: "People & Body",

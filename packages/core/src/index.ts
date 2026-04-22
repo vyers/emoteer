@@ -2,12 +2,13 @@ export type {
   EmoteTier,
   NativeEmoji,
   LocalEmote,
+  Emote,
   CloudConfig,
   EmojiGroupNumber,
   EmojiGroupName,
 } from './types.js';
 
-export { EMOJI_GROUPS } from './types.js';
+export { EMOJI_GROUPS, isLocalEmote, isNativeEmoji } from './types.js';
 
 export {
   loadEmojis,

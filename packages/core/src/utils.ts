@@ -1,4 +1,4 @@
-import type { NativeEmoji } from './types.js';
+import { isLocalEmote, type Emote, type NativeEmoji } from './types.js';
 
 const SHORTCODE_PATTERN = /:[\p{L}\p{N}_]+:/gimu;
 
@@ -6,27 +6,32 @@ const SHORTCODE_PATTERN = /:[\p{L}\p{N}_]+:/gimu;
  * Replaces `:shortcode:` occurrences in a string with their unicode emoji
  * equivalents using a pre-built shortcode index.
  *
+ * Local emote shortcodes (which have no unicode form) are preserved as text
+ * so consumers can render them as images in their own markup.
+ *
  * @example
  * const index = buildShortcodeIndex(await loadEmojis());
  * textToEmoji('Hello :grinning_face:', index); // 'Hello 😀'
  */
-export function textToEmoji(
+export function textToEmoji<T extends Emote>(
   value: string,
-  index: Map<string, NativeEmoji>,
+  index: Map<string, T>,
 ): string {
   return value.replace(SHORTCODE_PATTERN, (match) => {
-    return index.get(match)?.unicode ?? match;
+    const emote = index.get(match);
+    if (!emote || isLocalEmote(emote)) return match;
+    return emote.unicode;
   });
 }
 
 /**
- * Looks up an emoji by its `:shortcode:` (colons included).
+ * Looks up an emote by its `:shortcode:` (colons included).
  * Returns `null` if not found.
  */
-export function findEmojiByShortcode(
+export function findEmojiByShortcode<T extends Emote>(
   shortcode: string,
-  index: Map<string, NativeEmoji>,
-): NativeEmoji | null {
+  index: Map<string, T>,
+): T | null {
   return index.get(shortcode) ?? null;
 }
 

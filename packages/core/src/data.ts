@@ -1,5 +1,5 @@
 import type { Emoji as EmojibaseEmoji } from 'emojibase';
-import type { NativeEmoji } from './types.js';
+import { isLocalEmote, type Emote, type NativeEmoji } from './types.js';
 
 type ShortcodeMap = Record<string, string | string[]>;
 
@@ -220,14 +220,24 @@ export async function loadEmojis(locale: Locale = 'en'): Promise<NativeEmoji[]> 
   );
 }
 
-/** Builds a Map keyed by `:shortcode:` for O(1) lookups. */
-export function buildShortcodeIndex(
-  emojis: NativeEmoji[],
-): Map<string, NativeEmoji> {
-  const map = new Map<string, NativeEmoji>();
-  for (const emoji of emojis) {
-    for (const code of emoji.shortcodes) {
-      map.set(`:${code}:`, emoji);
+/**
+ * Builds a Map keyed by `:shortcode:` for O(1) lookups.
+ *
+ * Accepts both native emojis and local emotes. Locals are indexed under
+ * `:${emote.name}:`. When the same key exists in multiple emotes, later
+ * entries win — pass `[...natives, ...locals]` to let locals override.
+ */
+export function buildShortcodeIndex<T extends Emote>(
+  emotes: T[],
+): Map<string, T> {
+  const map = new Map<string, T>();
+  for (const emote of emotes) {
+    if (isLocalEmote(emote)) {
+      if (emote.name) map.set(`:${emote.name}:`, emote);
+    } else {
+      for (const code of emote.shortcodes) {
+        map.set(`:${code}:`, emote);
+      }
     }
   }
   return map;
