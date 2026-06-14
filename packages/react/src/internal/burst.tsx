@@ -1,4 +1,3 @@
-import { cn } from "./cn.js";
 import { useCallback, useState, type CSSProperties } from "react";
 
 interface Particle {
@@ -55,10 +54,9 @@ export function BurstParticles({
       {particles.map((p) => (
         <span
           key={p.id}
-          className={cn(
-            "animate-burst pointer-events-none select-none absolute top-1/2 left-1/2 z-10",
-            className,
-          )}
+          data-scope="emoteer"
+          data-part="burst-particle"
+          className={className}
           style={{ "--tx": p.tx, "--ty": p.ty } as CSSProperties}
         >
           {emoji}

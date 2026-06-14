@@ -1,5 +1,4 @@
 import { textToEmoji } from "@emoteer/core";
-import { cn } from "../internal/cn.js";
 import {
   useCallback,
   useLayoutEffect,
@@ -100,14 +99,12 @@ export function EmoteInput({
     <input
       ref={setRef}
       type="text"
+      data-scope="emote-input"
+      data-part="input"
       value={value}
       defaultValue={defaultValue}
       onChange={handleChange}
-      className={cn(
-        "font-semibold p-2.5 rounded-(--em-radius-input) border-(length:--em-border-width-input) border-(--em-border-input) bg-(--em-bg-input)",
-        "focus:outline-hidden focus:ring-2 focus:ring-em-primary",
-        className,
-      )}
+      className={className}
       {...props}
     />
   );
@@ -185,15 +182,12 @@ export function EmoteTextArea({
   return (
     <textarea
       ref={setRef}
+      data-scope="emote-textarea"
+      data-part="textarea"
       value={value}
       defaultValue={defaultValue}
       onChange={handleChange}
-      className={cn(
-        "font-semibold p-2.5 rounded-(--em-radius-textarea) border-(length:--em-border-width-textarea) border-(--em-border-textarea) bg-(--em-bg-textarea)",
-        "focus:outline-hidden focus:ring-2 focus:ring-em-primary",
-        "resize-y",
-        className,
-      )}
+      className={className}
       cols={40}
       rows={5}
       {...props}

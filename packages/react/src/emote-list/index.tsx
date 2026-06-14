@@ -5,7 +5,6 @@ import {
   type EmojiGroupNumber,
   type NativeEmoji,
 } from "@emoteer/core";
-import { cn } from "../internal/cn.js";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import {
   createContext,
@@ -176,12 +175,7 @@ function Root({ onSelect, className, children }: EmoteListRootProps) {
         onSelect: handleSelect,
       }}
     >
-      <div
-        className={cn(
-          "w-80 border-(length:--em-border-width-root) rounded-(--em-radius-root) border-(--em-border-root) bg-(--em-bg-root) overflow-hidden",
-          className,
-        )}
-      >
+      <div data-scope="emote-list" data-part="root" className={className}>
         {children}
       </div>
     </EmoteListContext.Provider>
@@ -202,7 +196,7 @@ function Search({
   const { query, setQuery } = useEmoteListContext();
 
   return (
-    <div className="px-2 pt-2 pb-1">
+    <div data-scope="emote-list" data-part="search">
       <input
         type="search"
         value={query}
@@ -211,11 +205,9 @@ function Search({
         }
         placeholder={placeholder}
         aria-label="Search emojis"
-        className={cn(
-          "w-full font-semibold p-2.5 rounded-(--em-radius-search) border-(length:--em-border-width-search) border-(--em-border-search)",
-          "text-sm focus:outline-hidden focus:ring-2 focus:ring-em-primary",
-          className,
-        )}
+        data-scope="emote-list"
+        data-part="search-input"
+        className={className}
       />
     </div>
   );
@@ -288,42 +280,37 @@ function Tabs({ groups, display = "emoji", className }: EmoteListTabsProps) {
   }, [groups, favorites, hasLocals]);
 
   return (
-    <ScrollArea.Root className={cn("border-b border-em-border", className)}>
-      <ScrollArea.Viewport
-        role="group"
-        aria-label="Emoji categories"
-        className="px-2 py-1"
-      >
-        <div className="flex gap-0.5">
-          {entries.map(([num, label]) => {
-            const groupNum = Number(num) as EmojiGroupNumber;
-            const isActive = activeGroup === groupNum;
-            return (
-              <button
-                key={num}
-                type="button"
-                aria-label={label}
-                aria-pressed={isActive}
-                title={label}
-                onClick={() => setActiveGroup(isActive ? "all" : groupNum)}
-                className={cn(
-                  "shrink-0 rounded-sm transition-colors",
-                  display === "emoji"
-                    ? "px-1.5 py-1 text-base leading-none"
-                    : "px-2 py-0.5 text-xs font-medium",
-                  isActive
-                    ? "bg-em-hover text-em-fg"
-                    : "text-em-muted opacity-70 hover:bg-em-hover hover:opacity-100 hover:text-em-fg",
-                )}
-              >
-                {display === "emoji" ? (GROUP_ICONS[groupNum] ?? label) : label}
-              </button>
-            );
-          })}
-        </div>
-      </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar orientation="horizontal" />
-    </ScrollArea.Root>
+    <div data-scope="emote-list" data-part="tabs" className={className}>
+      <ScrollArea.Root>
+        <ScrollArea.Viewport role="group" aria-label="Emoji categories">
+          <div data-scope="emote-list" data-part="tab-list">
+            {entries.map(([num, label]) => {
+              const groupNum = Number(num) as EmojiGroupNumber;
+              const isActive = activeGroup === groupNum;
+              return (
+                <button
+                  key={num}
+                  type="button"
+                  aria-label={label}
+                  aria-pressed={isActive}
+                  title={label}
+                  data-scope="emote-list"
+                  data-part="tab"
+                  data-display={display}
+                  data-active={isActive || undefined}
+                  onClick={() => setActiveGroup(isActive ? "all" : groupNum)}
+                >
+                  {display === "emoji"
+                    ? (GROUP_ICONS[groupNum] ?? label)
+                    : label}
+                </button>
+              );
+            })}
+          </div>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar orientation="horizontal" />
+      </ScrollArea.Root>
+    </div>
   );
 }
 
@@ -358,7 +345,9 @@ function EmoteGlyph({
       <img
         src={emote.src}
         alt={emote.name}
-        className={cn("inline-block w-6 h-6 object-contain", className)}
+        data-scope="emote-list"
+        data-part="glyph"
+        className={className}
         draggable={false}
       />
     );
@@ -512,10 +501,10 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
   if (isLoading) {
     return (
       <div
-        className={cn(
-          "flex items-center justify-center text-em-muted text-sm",
-          className,
-        )}
+        data-scope="emote-list"
+        data-part="grid-status"
+        data-loading=""
+        className={className}
         style={{ height }}
       >
         Loading emojis…
@@ -526,10 +515,10 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
   if (items.length === 0) {
     return (
       <div
-        className={cn(
-          "flex items-center justify-center text-em-muted text-sm",
-          className,
-        )}
+        data-scope="emote-list"
+        data-part="grid-status"
+        data-empty=""
+        className={className}
         style={{ height }}
       >
         No emojis found
@@ -538,13 +527,19 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
   }
 
   return (
-    <ScrollArea.Root className={cn("px-1", className)} style={{ height }}>
-      <ScrollArea.Viewport
-        ref={scrollRef}
-        role="grid"
-        aria-label="Emoji grid"
-        onScroll={handleScroll}
-      >
+    <div
+      data-scope="emote-list"
+      data-part="grid"
+      className={className}
+      style={{ height }}
+    >
+      <ScrollArea.Root style={{ height: "100%" }}>
+        <ScrollArea.Viewport
+          ref={scrollRef}
+          role="grid"
+          aria-label="Emoji grid"
+          onScroll={handleScroll}
+        >
         <div
           style={{
             height: rowVirtualizer.getTotalSize(),
@@ -590,7 +585,8 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
                 >
                   <span
                     role="rowheader"
-                    className="text-[10px] font-semibold uppercase tracking-wide text-em-muted"
+                    data-scope="emote-list"
+                    data-part="header"
                   >
                     {item.label}
                   </span>
@@ -623,6 +619,8 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
                       type="button"
                       title={label}
                       aria-label={label}
+                      data-scope="emote-list"
+                      data-part="cell"
                       onMouseEnter={() => setHoveredEmote(emote)}
                       onFocus={() => setHoveredEmote(emote)}
                       onClick={() => onSelect(emote)}
@@ -630,11 +628,6 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
                         flex: `0 0 ${100 / COLUMNS}%`,
                         height: ROW_HEIGHT,
                       }}
-                      className={cn(
-                        "inline-flex items-center justify-center text-2xl",
-                        "rounded-md hover:bg-em-hover cursor-pointer select-none p-0.5",
-                        "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary",
-                      )}
                     >
                       <EmoteGlyph emote={emote} />
                     </button>
@@ -644,9 +637,10 @@ function Grid({ height = 280, className }: EmoteListGridProps) {
             );
           })}
         </div>
-      </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar orientation="vertical" />
-    </ScrollArea.Root>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar orientation="vertical" />
+      </ScrollArea.Root>
+    </div>
   );
 }
 
@@ -675,31 +669,29 @@ function Preview({ className }: EmoteListPreviewProps) {
   const shortcode = shortcodeText ? `:${shortcodeText}:` : "";
 
   return (
-    <div
-      className={cn(
-        "flex justify-between border-t-(length:--em-border-width-preview) border-t-(--em-border-preview) h-10 gap-2.5 px-2.5 items-center",
-        className,
-      )}
-    >
-      <span className="text-2xl leading-none" aria-hidden="true">
+    <div data-scope="emote-list" data-part="preview" className={className}>
+      <span data-scope="emote-list" data-part="preview-glyph" aria-hidden="true">
         {hoveredEmote ? <EmoteGlyph emote={hoveredEmote} /> : null}
       </span>
-      <div className="flex flex-col w-full items-start justify-center leading-3 font-medium text-sm">
-        <span className="capitalize">
+      <div data-scope="emote-list" data-part="preview-info">
+        <span data-scope="emote-list" data-part="preview-label">
           {hoveredEmote ? emoteLabel(hoveredEmote) : "Hover an emoji"}
         </span>
-        {shortcode && <small className="text-em-muted">{shortcode}</small>}
+        {shortcode && (
+          <small data-scope="emote-list" data-part="preview-shortcode">
+            {shortcode}
+          </small>
+        )}
       </div>
-      <div className="flex gap-1.5 h-full items-center">
+      <div data-scope="emote-list" data-part="preview-actions">
         <button
           type="button"
           aria-label="Copy emoji"
           title="Copy"
+          data-scope="emote-list"
+          data-part="action-copy"
+          data-disabled={!hoveredEmote || undefined}
           onClick={handleCopy}
-          className={cn(
-            "text-em-muted hover:text-em-fg transition-colors",
-            !hoveredEmote && "pointer-events-none opacity-40",
-          )}
         >
           <Icon name={copied ? "check" : "copy"} size={18} />
         </button>
@@ -709,14 +701,11 @@ function Preview({ className }: EmoteListPreviewProps) {
             isFavorited ? "Remove from favourites" : "Add to favourites"
           }
           title="Favourite"
+          data-scope="emote-list"
+          data-part="action-favorite"
+          data-disabled={!hoveredEmote || undefined}
+          data-favorited={isFavorited || undefined}
           onClick={() => hoveredEmote && toggleFavorite(hoveredEmote)}
-          className={cn(
-            "transition-colors",
-            !hoveredEmote && "pointer-events-none opacity-40",
-            isFavorited
-              ? "text-yellow-500 hover:text-yellow-600"
-              : "text-em-muted hover:text-em-fg",
-          )}
         >
           <Icon
             name="star"

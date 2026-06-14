@@ -1,6 +1,5 @@
 import { Portal } from "@zag-js/react";
 import { isLocalEmote, type Emote } from "@emoteer/core";
-import { cn } from "../internal/cn.js";
 import {
   autoUpdate,
   flip,
@@ -254,6 +253,8 @@ function Input({
       aria-expanded={expanded}
       aria-controls={listboxId}
       aria-activedescendant={activeDescendant}
+      data-scope="emote-autocomplete"
+      data-part="input"
       onChange={(e) => {
         handleInputChange(e);
         onChange?.(e);
@@ -262,11 +263,7 @@ function Input({
         handleKeyDown(e);
         onKeyDown?.(e);
       }}
-      className={cn(
-        "font-semibold p-2.5 rounded-(--em-radius-autocomplete-input) border-(length:--em-border-width-autocomplete-input) border-(--em-border-autocomplete-input) bg-(--em-bg-autocomplete-input)",
-        "focus:outline-hidden focus:ring-2 focus:ring-em-primary",
-        className,
-      )}
+      className={className}
       {...props}
     />
   );
@@ -290,7 +287,9 @@ function Content({ children, className }: EmoteAutocompleteContentProps) {
       <div
         ref={floatingRef}
         style={floatingStyles}
-        className={cn("z-50", className)}
+        data-scope="emote-autocomplete"
+        data-part="content"
+        className={className}
       >
         {children}
       </div>
@@ -313,11 +312,9 @@ function List({ className }: EmoteAutocompleteListProps) {
       id={listboxId}
       role="listbox"
       aria-label="Emoji suggestions"
-      className={cn(
-        "flex items-center gap-1.25 whitespace-nowrap",
-        "border-(length:--em-border-width-autocomplete-list) rounded-(--em-radius-autocomplete-list) border-(--em-border-autocomplete-list) bg-(--em-bg-autocomplete-list) p-2",
-        className,
-      )}
+      data-scope="emote-autocomplete"
+      data-part="list"
+      className={className}
     >
       {suggestions.map((emote, index) => {
         const key = emoteKey(emote);
@@ -329,20 +326,18 @@ function List({ className }: EmoteAutocompleteListProps) {
             role="option"
             type="button"
             aria-selected={index === activeIndex}
+            data-scope="emote-autocomplete"
+            data-part="option"
             title={label}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => selectSuggestion(emote)}
-            className={cn(
-              "inline-flex items-center justify-center text-2xl rounded-md",
-              "cursor-pointer select-none h-fit p-0.5 transition-colors",
-              index === activeIndex ? "bg-em-hover" : "hover:bg-em-hover",
-            )}
           >
             {isLocalEmote(emote) ? (
               <img
                 src={emote.src}
                 alt={emote.name}
-                className="inline-block w-6 h-6 object-contain"
+                data-scope="emote-autocomplete"
+                data-part="glyph"
                 draggable={false}
               />
             ) : (

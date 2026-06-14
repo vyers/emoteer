@@ -1,4 +1,3 @@
-import { cn } from "../internal/cn.js";
 import * as popover from "@zag-js/popover";
 import { mergeProps, normalizeProps, Portal, useMachine } from "@zag-js/react";
 import {
@@ -35,7 +34,9 @@ export interface ReactionButtonRootProps {
 function Root({ onSelect, className, children }: ReactionButtonRootProps) {
   return (
     <ReactionButtonContext.Provider value={{ onSelect }}>
-      <div className={cn("flex items-center gap-1", className)}>{children}</div>
+      <div data-scope="reaction-button" data-part="root" className={className}>
+        {children}
+      </div>
     </ReactionButtonContext.Provider>
   );
 }
@@ -73,17 +74,16 @@ function Item({
     <button
       type="button"
       aria-label={label ?? emoji}
+      data-scope="reaction-button"
+      data-part="item"
       {...props}
       onClick={handleClick}
-      className={cn(
-        "relative inline-flex h-8 w-8 items-center justify-center rounded-(--em-radius-reaction-item) border-(length:--em-border-width-reaction-item) border-(--em-border-reaction-item)",
-        "bg-(--em-bg-reaction-item) text-lg transition-all hover:bg-em-hover hover:border-em-fg/20 active:scale-95",
-        "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary select-none cursor-pointer",
-        className,
-      )}
+      className={className}
     >
-      <BurstParticles particles={particles} emoji={emoji} className="text-lg" />
-      <span className="relative z-20">{emoji}</span>
+      <BurstParticles particles={particles} emoji={emoji} />
+      <span data-scope="reaction-button" data-part="item-glyph">
+        {emoji}
+      </span>
     </button>
   );
 }
@@ -91,7 +91,13 @@ function Item({
 // ─── Divider ──────────────────────────────────────────────────────────────────
 
 function Divider({ className }: { className?: string }) {
-  return <div className={cn("w-px h-6 bg-em-border mx-1", className)} />;
+  return (
+    <div
+      data-scope="reaction-button"
+      data-part="divider"
+      className={className}
+    />
+  );
 }
 
 // ─── Plus ─────────────────────────────────────────────────────────────────────
@@ -108,15 +114,19 @@ const Plus = forwardRef<HTMLButtonElement, ReactionButtonPlusProps>(
       <button
         type="button"
         aria-label="Add reaction"
+        // data-scope/data-part go BEFORE the spread so that when this is cloned
+        // as a Zag popover trigger, Zag's own data-scope="popover"/
+        // data-part="trigger" win — it resolves the trigger via a DOM query on
+        // those attributes, so overriding them would break opening the popover.
+        data-scope="reaction-button"
+        data-part="plus"
         ref={ref}
         {...props}
         onClick={onClick}
-        className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-(--em-radius-reaction-item) border-(length:--em-border-width-reaction-item) border-(--em-border-reaction-item)",
-          "bg-(--em-bg-reaction-item) text-em-muted transition-all hover:bg-em-hover hover:border-em-fg/20 active:scale-95",
-          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-em-primary",
-          className,
-        )}
+        // Stable styling hook that survives the spread (and Zag's merge), so the
+        // default look applies whether used standalone or as a popover trigger.
+        data-emoteer-plus=""
+        className={className}
       >
         <Icon name="plus" size={18} />
       </button>
@@ -159,19 +169,19 @@ function Sticker({
   };
 
   return (
-    <div className={cn("relative inline-block", className)}>
-      <BurstParticles particles={particles} emoji={emoji} className="text-xl" />
+    <div
+      data-scope="reaction-button"
+      data-part="sticker-root"
+      className={className}
+    >
+      <BurstParticles particles={particles} emoji={emoji} />
 
       <button
         type="button"
         aria-label={`React with ${emoji}`}
+        data-scope="reaction-button"
+        data-part="sticker"
         onClick={handleClick}
-        className={cn(
-          "group relative flex h-12 w-12 items-center justify-center rounded-full",
-          "border-(length:--em-border-width-reaction-sticker) border-(--em-border-reaction-sticker) bg-(--em-bg-reaction-sticker) text-2xl shadow-lg transition-all",
-          "hover:scale-110 hover:-rotate-3 active:scale-95",
-          "focus-visible:outline-hidden focus-visible:ring-2 select-none cursor-pointer focus-visible:ring-em-primary",
-        )}
       >
         {children || emoji}
       </button>
@@ -234,7 +244,12 @@ function Trigger({ children }: ReactionButtonTriggerProps) {
   const api = useReactionButtonPopoverContext();
 
   const plusButton = (
-    <Plus className="border-transparent bg-transparent text-em-fg hover:bg-em-hover hover:border-transparent rounded-full w-10 h-10 transition-all" />
+    // `data-emoteer-trigger` (not data-part) because Zag's getTriggerProps
+    // overwrites data-scope/data-part when this element is cloned as the
+    // popover trigger; this custom attribute survives the merge.
+    <button type="button" aria-label="Add reaction" data-emoteer-trigger="">
+      <Icon name="plus" size={18} />
+    </button>
   );
 
   const triggerElement = children || plusButton;
@@ -273,14 +288,8 @@ function Content({ children, className }: ReactionButtonContentProps) {
 
   return (
     <Portal>
-      <div {...api.getPositionerProps()} className="z-50">
-        <div
-          {...api.getContentProps()}
-          className={cn(
-            "overflow-hidden animate-in fade-in zoom-in-95 duration-200",
-            className,
-          )}
-        >
+      <div {...api.getPositionerProps()} data-emoteer-positioner="">
+        <div {...api.getContentProps()} className={className}>
           {children}
         </div>
       </div>

@@ -1,4 +1,3 @@
-import { cn } from "../internal/cn.js";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as slider from "@zag-js/slider";
 import {
@@ -99,22 +98,11 @@ function Root({
     <ReactionSliderContext.Provider
       value={{ api, emoji, burst, min, max, scaleEffect }}
     >
-      <div
-        {...api.getRootProps()}
-        className={cn(
-          "relative flex flex-col justify-center h-14 w-full rounded-full bg-em-bg shadow-sm border border-em-border",
-          className,
-        )}
-      >
-        <label {...api.getLabelProps()} className="sr-only">
+      <div {...api.getRootProps()} className={className}>
+        <label {...api.getLabelProps()} data-emoteer-visually-hidden="">
           {ariaLabel}
         </label>
-        <div
-          {...api.getControlProps()}
-          className="relative flex items-center w-full h-full px-4"
-        >
-          {children}
-        </div>
+        <div {...api.getControlProps()}>{children}</div>
         <input
           {...api.getHiddenInputProps({ index: 0 })}
           aria-label={ariaLabel}
@@ -135,13 +123,7 @@ function Track({ className, children }: ReactionSliderTrackProps) {
   const { api } = useReactionSliderContext();
 
   return (
-    <div
-      {...api.getTrackProps()}
-      className={cn(
-        "h-3 w-full bg-em-hover rounded-full overflow-hidden",
-        className,
-      )}
-    >
+    <div {...api.getTrackProps()} className={className}>
       {children}
     </div>
   );
@@ -156,15 +138,7 @@ export interface ReactionSliderRangeProps {
 function Range({ className }: ReactionSliderRangeProps) {
   const { api } = useReactionSliderContext();
 
-  return (
-    <div
-      {...api.getRangeProps()}
-      className={cn(
-        "h-full bg-gradient-to-r from-rose-400 to-fuchsia-500 rounded-full",
-        className,
-      )}
-    />
-  );
+  return <div {...api.getRangeProps()} className={className} />;
 }
 
 // ─── Thumb ────────────────────────────────────────────────────────────────────
@@ -196,11 +170,7 @@ function Thumb({ className, children }: ReactionSliderThumbProps) {
   return (
     <div
       {...thumbProps}
-      className={cn(
-        "z-10 flex items-center justify-center outline-none cursor-pointer",
-        "filter-[drop-shadow(0_2px_2px_rgba(0,0,0,0.35))]",
-        className,
-      )}
+      className={className}
       style={{
         ...thumbProps.style,
         width: "48px",
@@ -211,13 +181,8 @@ function Thumb({ className, children }: ReactionSliderThumbProps) {
         transformOrigin: "center",
       }}
     >
-      <BurstParticles particles={particles} emoji={emoji ?? ""} className="text-xl" />
-      <span
-        style={{
-          fontSize: "1.75rem",
-        }}
-        className="select-none leading-none"
-      >
+      <BurstParticles particles={particles} emoji={emoji ?? ""} />
+      <span data-scope="reaction-slider" data-part="thumb-glyph">
         {emoji}
       </span>
       {children}
@@ -244,17 +209,17 @@ function Marker({ className, children }: ReactionSliderMarkerProps) {
 
   return (
     <div
-      className="absolute left-1/2 bottom-full mb-2 pointer-events-none"
+      data-scope="reaction-slider"
+      data-part="marker-positioner"
       style={{
         transform: `translateX(-50%) scale(${reverseScale})`,
         transformOrigin: "bottom center",
       }}
     >
       <div
-        className={cn(
-          "px-2 py-1 bg-em-fg text-em-bg text-xs rounded-md shadow-xl border border-em-bg/10 whitespace-nowrap",
-          className,
-        )}
+        data-scope="reaction-slider"
+        data-part="marker"
+        className={className}
       >
         {children
           ? children(sliderApi.value[0] ?? 0)

@@ -1,4 +1,3 @@
-import { cn } from "../cn.js";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as scrollArea from "@zag-js/scroll-area";
 import React, {
@@ -49,7 +48,7 @@ function Root({
         {...rootProps}
         {...props}
         style={{ ...rootProps.style, ...style }}
-        className={cn("relative overflow-hidden bg-transparent", className)}
+        className={className}
       >
         {children}
       </div>
@@ -73,10 +72,11 @@ const Viewport = forwardRef<HTMLDivElement, ScrollAreaViewportProps>(
         {...viewportProps}
         {...props}
         style={{ ...viewportProps.style, ...style }}
-        className={cn(
-          "h-full w-full rounded-[inherit] bg-transparent emoteer-scroll-viewport",
-          className,
-        )}
+        className={
+          className
+            ? `emoteer-scroll-viewport ${className}`
+            : "emoteer-scroll-viewport"
+        }
         onScroll={(e) => {
           viewportProps.onScroll?.(e);
           onScroll?.(e);
@@ -127,14 +127,7 @@ function Scrollbar({
       {...scrollbarProps}
       {...props}
       style={{ ...scrollbarProps.style, ...style }}
-      className={cn(
-        "flex touch-none select-none transition-colors z-20 bg-transparent",
-        orientation === "vertical" &&
-          "h-full w-2 border-l border-transparent p-[1px]",
-        orientation === "horizontal" &&
-          "h-2 flex-col border-t border-transparent p-[1px]",
-        className,
-      )}
+      className={className}
     >
       {children || <Thumb orientation={orientation} />}
     </div>
@@ -158,10 +151,7 @@ function Thumb({
     <div
       {...api.getThumbProps({ orientation })}
       {...props}
-      className={cn(
-        "relative flex-1 rounded-full bg-em-muted/30 hover:bg-em-muted/50 transition-colors",
-        className,
-      )}
+      className={className}
     />
   );
 }
