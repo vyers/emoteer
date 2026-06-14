@@ -32,12 +32,14 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./styles.css": "./styles.css",
     "./tailwind": "./tailwind.css"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
+    "styles.css",
     "tailwind.css",
     "README.md"
   ],
@@ -57,9 +59,7 @@
     "@zag-js/scroll-area": "^1.39.0",
     "@zag-js/popover": "^1.39.0",
     "@floating-ui/react": "^0.26.28",
-    "@tanstack/react-virtual": "^3.13.5",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.6.0"
+    "@tanstack/react-virtual": "^3.13.5"
   },
   "devDependencies": {
     "@emoteer/eslint-config": "workspace:*",
