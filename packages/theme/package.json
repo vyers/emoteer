@@ -1,6 +1,6 @@
 {
   "name": "@emoteer/theme",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Design tokens, base CSS and Tailwind v4 preset for emoteer.",
   "license": "MIT",
   "author": "vyers <vyers.dev@gmail.com>",
