@@ -2,17 +2,20 @@
 
 <img width="1500" height="500" alt="emoteer-promocional" src="./assets/promotional-cover.png" />
 
-The modern emoji SDK for the web. Headless and styled React components for emoji pickers, reactions, inline autocomplete, shortcode-to-unicode inputs, and reaction intensity sliders — built on [Zag.js](https://zagjs.com/) state machines, Tailwind CSS v4, and [emojibase](https://emojibase.dev/) data.
+The modern emoji SDK for the web. Headless and styled React components for emoji pickers, reactions, inline autocomplete, shortcode-to-unicode inputs, and reaction intensity sliders — built on [Zag.js](https://zagjs.com/) state machines and [emojibase](https://emojibase.dev/) data, with prebuilt CSS that works with or without Tailwind v4.
 
 ```bash
 npm install @emoteer/react
 ```
 
-```css
-/* your app's main CSS, processed by Tailwind v4 */
-@import "tailwindcss";
-@import "@emoteer/react/tailwind";
+```ts
+// prebuilt styles — plain CSS, no Tailwind required
+import "@emoteer/react/styles.css";
 ```
+
+> On Tailwind v4? Use the preset instead: `@import "@emoteer/react/tailwind";`.
+> Prefer headless? Skip the import and style the `data-part` contract yourself.
+> See the [package README](./packages/react#setup).
 
 ```tsx
 import { EmoteProvider, EmoteListPicker, isLocalEmote } from "@emoteer/react";
@@ -32,13 +35,14 @@ export function App() {
 
 ## Features
 
-- **Headless primitives** — every component is exposed as a compound (`Root` + subcomponents) so layouts, labels, and styles can be overridden without forking.
+- **Truly headless** — no styling is baked into the markup. Every element exposes stable `data-scope`/`data-part` hooks (plus `data-*` state), so you can drop in the prebuilt CSS, theme via tokens, or bring your own styles entirely — no Tailwind needed, no forking.
+- **Compound API** — every component is a compound (`Root` + subcomponents) so layouts, labels, and arrangement can be recomposed freely.
 - **Accessible by default** — WAI-ARIA patterns for combobox, grid, tooltip, popover and slider; keyboard navigation everywhere interactive.
 - **SSR-safe** — no DOM access during render, compatible with Next.js `app/` and Remix.
 - **Tree-shakeable** — ESM output, per-locale code splitting of emoji data so apps ship only what they use.
 - **28 locales** — BCP 47 tags with native-language labels and shortcodes (emojibase + CLDR providers).
 - **TypeScript first** — strict typings, discriminated unions for emoji tiers, `Locale` union with IDE autocomplete.
-- **Zero runtime resets** — the Tailwind preset only contributes utilities used by the components and the `--em-*` tokens, no Tailwind preflight, so it never overrides consumer base styles.
+- **Zero resets** — ships no CSS reset and no Tailwind `preflight`; styles are scoped to the components' own `data-part` selectors, so they never override your base styles.
 
 ## Packages
 
@@ -54,8 +58,8 @@ Support for Svelte and Vue is planned — Zag's state machines already run frame
 
 - **Node** ≥ 20 (development).
 - **React** ^19 (peer dependency of `@emoteer/react`).
-- **Modern evergreen browsers** — Chromium, Firefox, Safari. No IE11.
-- **Tailwind CSS v4** — required, since `@emoteer/react/tailwind` is a preset processed by your app's Tailwind pipeline.
+- **Modern evergreen browsers** — Chromium, Firefox, Safari. No IE11. (The default stylesheet uses `color-mix()`.)
+- **Tailwind CSS v4** — optional. Only needed if you opt into `@emoteer/react/tailwind`; the prebuilt `@emoteer/react/styles.css` and the headless path need no Tailwind.
 
 ## Monorepo
 

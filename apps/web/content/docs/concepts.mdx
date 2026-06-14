@@ -45,7 +45,7 @@ You can render any subset, in any order, with any markup in between. If you need
 
 ## Headless vs styled
 
-Primitives are headless by default. Adding `@import '@emoteer/react/tailwind'` to your app's CSS opts into the bundled styles. All classes are namespaced and can be overridden through CSS variables or per-slot `className` merging.
+Primitives are headless by default — the markup carries no styling, only stable `data-scope` / `data-part` hooks. Opt into the bundled look with `import '@emoteer/react/styles.css'` (plain CSS, no Tailwind) or, on Tailwind v4, `@import '@emoteer/react/tailwind'`. Everything themes through `--em-*` CSS variables, and each slot accepts a `className` of your own.
 
 ## State ownership
 

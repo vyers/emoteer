@@ -4,7 +4,7 @@
 
 Headless and styled React components for emoji pickers, reactions, inline autocomplete, shortcode-to-unicode inputs, and reaction intensity sliders.
 
-Built on [Zag.js](https://zagjs.com/) state machines, Tailwind CSS v4, and [emojibase](https://emojibase.dev/) data. Tree-shakeable, accessible, typed, SSR-safe.
+Built on [Zag.js](https://zagjs.com/) state machines and [emojibase](https://emojibase.dev/) data. Truly headless (style-free markup with `data-part` hooks), with prebuilt CSS that works with or without Tailwind v4. Tree-shakeable, accessible, typed, SSR-safe.
 
 ## Install
 
@@ -27,20 +27,71 @@ Peer dependencies:
 
 ### Styles
 
-The package ships a Tailwind v4 preset at `@emoteer/react/tailwind`. Import it from a CSS file processed by your app's Tailwind, after the main Tailwind import:
+The components ship **no styling baked into the markup** — they render stable
+`data-scope` / `data-part` hooks and accept your `className`. Pick the level that
+fits your app. **Tailwind is optional.**
+
+**1. Styled, without Tailwind** — import the prebuilt, framework-agnostic
+stylesheet once (anywhere JS/CSS imports work: Vite, Next, CRA, Remix, …):
+
+```ts
+import "@emoteer/react/styles.css";
+```
+
+That's it — plain CSS, no build pipeline required. It pulls in the `--em-*`
+design tokens and styles every part with them, so you theme by overriding tokens
+(see [`@emoteer/theme`](https://www.npmjs.com/package/@emoteer/theme)).
+
+**2. Styled, with Tailwind v4** — if you already run Tailwind, import the preset
+from a CSS file in your Tailwind pipeline. You get the default look **plus**
+`bg-em-*` / `rounded-em-*` token utilities to override with:
 
 ```css
 @import "tailwindcss";
 @import "@emoteer/react/tailwind";
 ```
 
-The preset pulls in the `--em-*` design tokens and points Tailwind at the compiled components so it generates only the utilities they actually use — inside your app's own `@layer utilities`, with no pre-compiled rules to clash with the rest of your styles. **Tailwind CSS v4 is required** in the consuming app.
+There is no Tailwind `preflight`/reset in the preset, so it never clobbers your
+base styles.
 
-If you only want the tokens and not the component styles, import the theme directly:
+**3. Fully headless** — import nothing (or only `@emoteer/theme/css` for the
+tokens) and write your own CSS against the styling contract below. The logic,
+accessibility and state all work with zero styles.
+
+### Styling contract (`data-part`)
+
+Every rendered element carries `data-scope="<component>"` + `data-part="<part>"`,
+and exposes state via `data-*` / ARIA attributes. Target those selectors from any
+CSS — they have low specificity, so overriding is easy and there are no
+utility-class collisions:
 
 ```css
-@import "@emoteer/theme/tailwind";
+/* headless example */
+[data-scope="emote-list"][data-part="cell"]:hover {
+  background: rebeccapurple;
+}
+[data-scope="emote-list"][data-part="tab"][data-active] {
+  font-weight: 700;
+}
+[data-scope="reaction-counter"][data-part="chip"][data-active] {
+  outline: 2px solid hotpink;
+}
 ```
+
+| Scope                  | Notable parts (state)                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `emote-list`           | `root`, `search`, `search-input`, `tabs`, `tab-list`, `tab` (`data-active`, `data-display`), `grid`, `grid-status` (`data-loading`/`data-empty`), `header`, `cell`, `glyph`, `preview`, `preview-info`, `preview-label`, `preview-shortcode`, `preview-actions`, `action-copy` (`data-disabled`), `action-favorite` (`data-favorited`/`data-disabled`) |
+| `emote-input`          | `input`                                                                                                                                     |
+| `emote-textarea`       | `textarea`                                                                                                                                  |
+| `emote-autocomplete`   | `input`, `content`, `list`, `option` (`aria-selected`), `glyph`                                                                             |
+| `reaction-button`      | `root`, `item`, `item-glyph`, `plus`, `sticker`, `sticker-root`, `divider`, `burst-particle` (the default popover trigger is `[data-emoteer-trigger]`) |
+| `reaction-counter`     | `root`, `chip` (`aria-pressed` / `data-active`)                                                                                             |
+| `reaction-slider`      | `marker`, `marker-positioner`, `thumb-glyph`                                                                                                |
+
+Slider, scroll-area and popover internals are driven by [Zag](https://zagjs.com/)
+machines, so they expose **Zag's** own scopes — style `[data-scope="slider"]`,
+`[data-scope="scroll-area"]` and `[data-scope="popover"][data-state="open"]`
+respectively.
 
 ### Provider
 

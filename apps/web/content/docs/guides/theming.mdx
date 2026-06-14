@@ -7,7 +7,14 @@ Emoteer ships a set of styled defaults that you can keep, partially override, or
 
 ## Using the default theme
 
-Import the preset from your main CSS, after the main Tailwind import:
+Import the prebuilt stylesheet once — plain CSS, no Tailwind needed:
+
+```ts title="app/layout.tsx"
+import '@emoteer/react/styles.css';
+```
+
+On Tailwind v4? Import the preset from your main CSS instead, to also get the
+`bg-em-*` token utilities:
 
 ```css title="app/global.css"
 @import 'tailwindcss';
@@ -146,11 +153,13 @@ Slot widths preserve the default hairline look (most at `0.5px`). Override `--em
 
 ## Per-slot className
 
-Every slot also accepts a `className` that is merged with the defaults via `tailwind-merge` — later classes win. Handy if you use Tailwind:
+Every slot also accepts a `className`, appended to the element as-is (no
+`tailwind-merge`, no class soup to fight). Combine it with the prebuilt styles to
+tweak a slot, or use it on its own in headless mode:
 
 ```tsx
 <EmoteList.Root>
-  <EmoteList.Search className="rounded-full border-2 border-pink-500" />
+  <EmoteList.Search className="my-search" />
   <EmoteList.Tabs />
   <EmoteList.Grid />
 </EmoteList.Root>
@@ -158,4 +167,33 @@ Every slot also accepts a `className` that is merged with the defaults via `tail
 
 ## Headless mode
 
-If you want none of the defaults, skip the `@emoteer/react/tailwind` import and style every slot yourself. All primitives are unstyled when the preset is absent.
+The markup carries no styling of its own — every element exposes a stable
+`data-scope` / `data-part` hook (and `data-*` state), so you can style it with
+any CSS approach.
+
+Import nothing (or only `@emoteer/theme/css` for the `--em-*` tokens) and target
+the contract directly:
+
+```css title="app/globals.css"
+@import '@emoteer/theme/css'; /* optional: just the tokens */
+
+[data-scope='emote-list'][data-part='root'] {
+  width: 22rem;
+  background: var(--em-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 1rem;
+}
+[data-scope='emote-list'][data-part='cell']:hover {
+  background: var(--em-hover);
+}
+[data-scope='emote-list'][data-part='tab'][data-active] {
+  font-weight: 700;
+}
+```
+
+State is exposed via `data-*` (`data-active`, `data-favorited`, `data-disabled`,
+`data-loading`/`data-empty`) and ARIA (`aria-selected`, `aria-pressed`). Slider,
+scroll-area and popover internals expose their underlying [Zag](https://zagjs.com/)
+scopes (`[data-scope='slider']`, `[data-scope='scroll-area']`,
+`[data-scope='popover'][data-state='open']`). See the
+[component reference](/docs/components/emote-list) for the full part list.

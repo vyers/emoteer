@@ -102,4 +102,4 @@ import { EmoteListPicker, isLocalEmote } from '@emoteer/react';
 
 ## Styling
 
-Every slot accepts a `className` that extends the default styles. Slots use CSS variables that fall back to Tailwind tokens — override them in your own CSS or Tailwind theme.
+Every slot accepts a `className`, and exposes a stable `data-scope="emote-list"` / `data-part` hook for headless styling. Theming flows through the `--em-*` CSS variables (each falling back to your app's own tokens) — override them in plain CSS or, optionally, a Tailwind theme. See [Theming](/docs/guides/theming).
