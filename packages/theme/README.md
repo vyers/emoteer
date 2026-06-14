@@ -152,9 +152,19 @@ Or map them to an existing design system's own tokens:
 }
 ```
 
-## Zag.js scroll-area CSS
+## Framework-agnostic extras in `base.css`
 
-`base.css` also includes a tiny block that hides native scrollbars on any element with `data-part="viewport"` (emitted by `@zag-js/scroll-area`). This is framework-agnostic and will remain compatible with future Svelte and Vue bindings that use the same Zag machines.
+`base.css` (re-exported by the Tailwind preset) also ships a few small,
+plain-CSS pieces so the components work without Tailwind:
+
+- **Scrollbar hiding** on any element with `data-part="viewport"` (emitted by
+  `@zag-js/scroll-area`).
+- **Keyframes** `em-burst` (reaction particle burst) and `em-popover-in`
+  (popover/floating open transition), consumed by `@emoteer/react/styles.css`.
+- **`[data-emoteer-visually-hidden]`** — an accessible visually-hidden helper.
+
+All of this is framework-agnostic and will remain compatible with future Svelte
+and Vue bindings that use the same Zag machines.
 
 ## License
 
