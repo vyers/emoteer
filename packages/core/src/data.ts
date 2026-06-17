@@ -22,12 +22,31 @@ function normalizeShortcodes(codes: string | string[] | undefined): string[] {
   return list.map(toSnakeCase).filter(Boolean);
 }
 
+/**
+ * Standalone "regional indicator symbol" letters (🇦–🇿, U+1F1E6–U+1F1FF).
+ *
+ * These are not meant to be shown on their own — they only carry meaning in
+ * pairs that form country flags (e.g. 🇺🇸 = U+1F1FA U+1F1F8, hexcode
+ * `1F1FA-1F1F8`). A flag's hexcode therefore contains a `-`; an unpaired
+ * indicator is a single codepoint in this range, which is what we exclude.
+ */
+function isRegionalIndicator(hexcode: string): boolean {
+  if (hexcode.includes('-')) return false;
+  const cp = parseInt(hexcode, 16);
+  return cp >= 0x1f1e6 && cp <= 0x1f1ff;
+}
+
 function mapEmojis(
   raw: EmojibaseEmoji[],
   shortcodeMap: ShortcodeMap,
 ): NativeEmoji[] {
   return raw
-    .filter((e) => e.emoji != null && e.group !== 2) // skip component group (skin tones)
+    .filter(
+      (e) =>
+        e.emoji != null && // has an emoji presentation
+        e.group !== 2 && // skip component group (skin tones)
+        !isRegionalIndicator(e.hexcode), // skip lone flag-letter symbols
+    )
     .map((e) => ({
       unicode: e.emoji!,
       label: e.label,
