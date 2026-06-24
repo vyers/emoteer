@@ -1,0 +1,16 @@
+/*
+ * Tailwind entry for @emoteer/svelte.
+ *
+ * Pulls in the token preset (so `bg-em-*` / `rounded-em-*` utilities exist for
+ * overriding) plus the prebuilt component styles. Import this from a CSS file
+ * processed by your app's Tailwind v4 pipeline:
+ *
+ *   @import "tailwindcss";
+ *   @import "@emoteer/svelte/tailwind";
+ *
+ * Not on Tailwind? Import the framework-agnostic stylesheet instead:
+ *
+ *   import "@emoteer/svelte/styles.css";
+ */
+@import "@emoteer/theme/tailwind";
+@import "./styles.css";

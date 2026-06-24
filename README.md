@@ -51,13 +51,15 @@ export function App() {
 | [`@emoteer/core`](./packages/core) | Framework-agnostic loader, shortcode utilities, indexes, and types. Use directly if you're building a non-React UI. | [![npm](https://img.shields.io/npm/v/@emoteer/core.svg)](https://www.npmjs.com/package/@emoteer/core) |
 | [`@emoteer/theme`](./packages/theme) | CSS-only design tokens and Tailwind CSS v4 preset. Consumed transitively by `@emoteer/react`. | [![npm](https://img.shields.io/npm/v/@emoteer/theme.svg)](https://www.npmjs.com/package/@emoteer/theme) |
 | [`@emoteer/react`](./packages/react) | Ready-to-use React 19 components (picker, autocomplete, reactions, slider, tooltip, inputs). | [![npm](https://img.shields.io/npm/v/@emoteer/react.svg)](https://www.npmjs.com/package/@emoteer/react) |
+| [`@emoteer/svelte`](./packages/svelte) | The same component set for Svelte 5 (runes) — picker, autocomplete, reactions, slider, inputs. | [![npm](https://img.shields.io/npm/v/@emoteer/svelte.svg)](https://www.npmjs.com/package/@emoteer/svelte) |
 
-Support for Svelte and Vue is planned — Zag's state machines already run framework-agnostic, so porting the UI layer is the main work.
+Support for Vue is planned — Zag's state machines already run framework-agnostic, so porting the UI layer is the main work.
 
 ## Requirements
 
 - **Node** ≥ 20 (development).
 - **React** ^19 (peer dependency of `@emoteer/react`).
+- **Svelte** ^5 (peer dependency of `@emoteer/svelte`).
 - **Modern evergreen browsers** — Chromium, Firefox, Safari. No IE11. (The default stylesheet uses `color-mix()`.)
 - **Tailwind CSS v4** — optional. Only needed if you opt into `@emoteer/react/tailwind`; the prebuilt `@emoteer/react/styles.css` and the headless path need no Tailwind.
 
@@ -81,9 +83,12 @@ pnpm lint
 
 ## Roadmap
 
+Shipped:
+
+- [x] `@emoteer/svelte` — first non-React binding, built on Svelte 5 runes
+
 In progress:
 
-- [ ] `@emoteer/svelte` — first non-React binding, built on Svelte 5 runes
 - [ ] Skin-tone selector (long-press), state stored per-provider
 - [ ] Recently used list with a pluggable storage adapter
 - [ ] Expanded recipes (chat composer, feedback widget, live-chat)

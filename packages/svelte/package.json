@@ -1,0 +1,78 @@
+{
+  "name": "@emoteer/svelte",
+  "version": "0.1.0",
+  "description": "Headless and styled Svelte 5 components for emoji pickers, reactions, autocomplete and inputs.",
+  "license": "MIT",
+  "author": "vyers <vyers.dev@gmail.com>",
+  "homepage": "https://emoteer.vyers.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vyers/emoteer.git",
+    "directory": "packages/svelte"
+  },
+  "bugs": {
+    "url": "https://github.com/vyers/emoteer/issues"
+  },
+  "keywords": [
+    "emoji",
+    "emoteer",
+    "svelte",
+    "svelte5",
+    "emoji-picker",
+    "reactions",
+    "emoji-autocomplete",
+    "shortcodes",
+    "zag"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./styles.css",
+    "./tailwind": "./tailwind.css"
+  },
+  "files": [
+    "dist",
+    "styles.css",
+    "tailwind.css",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "svelte-package",
+    "dev": "svelte-package --watch",
+    "check-types": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@emoteer/core": "workspace:*",
+    "@emoteer/theme": "workspace:*",
+    "@zag-js/svelte": "^1.41.0",
+    "@zag-js/slider": "^1.41.0",
+    "@zag-js/scroll-area": "^1.41.0",
+    "@zag-js/popover": "^1.41.0",
+    "@floating-ui/dom": "^1.6.0",
+    "@tanstack/svelte-virtual": "^3.13.0"
+  },
+  "devDependencies": {
+    "@emoteer/typescript-config": "workspace:*",
+    "@sveltejs/package": "^2.3.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "svelte": "^5.20.0",
+    "svelte-check": "^4.1.0",
+    "typescript": "5.9.2",
+    "vite": "^6.0.0"
+  },
+  "peerDependencies": {
+    "svelte": "^5.20.0"
+  }
+}
