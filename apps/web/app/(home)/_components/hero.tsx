@@ -90,7 +90,7 @@ export function Hero() {
             <FrameworkChip label="React" available>
               <ReactLogo className="h-4 w-4 text-[#58C4DC]" />
             </FrameworkChip>
-            <FrameworkChip label="Svelte">
+            <FrameworkChip label="Svelte" available>
               <SvelteLogo className="h-4 w-4" />
             </FrameworkChip>
             <FrameworkChip label="Vue">

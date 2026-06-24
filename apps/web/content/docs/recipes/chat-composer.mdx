@@ -3,86 +3,195 @@ title: Chat composer
 description: A message input with shortcode autocomplete and an emoji picker button
 ---
 
-A production-ready chat composer combines three primitives: `EmoteTextArea` for the message body, `EmoteAutocomplete` for inline `:shortcode` suggestions, and `ReactionButton.Popover` wrapping an `EmoteList` for the picker button.
+A chat composer combines an autocomplete-driven input with a picker button. Typing `:` surfaces inline `:shortcode` suggestions via `EmoteAutocomplete`, the `ReactionButton.Popover` opens a full `EmoteList`, and Enter sends — pushing each message onto a list rendered as bubbles above the input.
+
+<ChatComposerPreview />
 
 ## The pattern
 
+<Tabs groupId="framework" persist items={['React', 'Svelte']}>
+
+<Tab value="React">
+
 ```tsx title="components/chat-composer.tsx"
-import {
-  EmoteAutocomplete,
-  EmoteList,
-  EmoteTextArea,
-  ReactionButton,
-} from '@emoteer/react';
+import { EmoteAutocomplete, EmoteList, ReactionButton } from '@emoteer/react';
 import { useState } from 'react';
 
-export function ChatComposer({
-  onSend,
-}: {
-  onSend: (message: string) => void;
-}) {
+export function ChatComposer() {
   const [value, setValue] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [messages, setMessages] = useState<string[]>([]);
 
-  const insertAtCursor = (unicode: string) => {
-    setValue((prev) => `${prev}${unicode}`);
-    setPickerOpen(false);
+  const send = () => {
+    const text = value.trim();
+    if (!text) return;
+    setMessages((prev) => [...prev, text]);
+    setValue('');
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!value.trim()) return;
-        onSend(value);
-        setValue('');
-      }}
-      className="flex items-end gap-2 rounded-2xl border p-2"
-    >
-      <EmoteAutocomplete.Root onSelect={(_, next) => setValue(next)}>
-        <EmoteTextArea
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Write a message. Type :grin for suggestions."
-          rows={2}
-          className="flex-1 resize-none bg-transparent outline-none"
-        />
-        <EmoteAutocomplete.Content>
-          <EmoteAutocomplete.List />
-        </EmoteAutocomplete.Content>
-      </EmoteAutocomplete.Root>
+    <div className="flex flex-col gap-3">
+      {messages.length > 0 && (
+        <div className="flex flex-col items-end gap-1.5">
+          {messages.map((message, i) => (
+            <div
+              key={i}
+              className="max-w-[80%] rounded-2xl rounded-br-sm bg-foreground px-3 py-1.5 text-sm text-background"
+            >
+              {message}
+            </div>
+          ))}
+        </div>
+      )}
 
-      <ReactionButton.Popover
-        open={pickerOpen}
-        onOpenChange={(d) => setPickerOpen(d.open)}
-      >
-        <ReactionButton.Trigger>
-          <ReactionButton.Plus />
-        </ReactionButton.Trigger>
-        <ReactionButton.Content>
-          <EmoteList.Root onSelect={(e) => insertAtCursor(e.unicode)}>
-            <EmoteList.Search />
-            <EmoteList.Tabs />
-            <EmoteList.Grid />
-          </EmoteList.Root>
-        </ReactionButton.Content>
-      </ReactionButton.Popover>
+      <div className="flex items-center gap-1 rounded-2xl border p-1 focus-within:border-primary">
+        <EmoteAutocomplete.Root onSelect={(_, next) => setValue(next)}>
+          <EmoteAutocomplete.Input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              // The autocomplete consumes Enter to pick a highlighted
+              // suggestion; only send when it didn't.
+              if (e.key === 'Enter' && !e.defaultPrevented) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder="Message… type : for emoji"
+            className="min-w-0 flex-1 border-0 bg-transparent px-3 py-1.5 outline-none"
+          />
+          <EmoteAutocomplete.Content>
+            <EmoteAutocomplete.List />
+          </EmoteAutocomplete.Content>
+        </EmoteAutocomplete.Root>
 
-      <button type="submit" className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold">
-        Send
-      </button>
-    </form>
+        <ReactionButton.Popover
+          open={pickerOpen}
+          onOpenChange={(d) => setPickerOpen(d.open)}
+        >
+          <ReactionButton.Trigger>
+            <ReactionButton.Plus />
+          </ReactionButton.Trigger>
+          <ReactionButton.Content>
+            <EmoteList.Root
+              onSelect={(e) => {
+                setValue((prev) => `${prev}${e.unicode}`);
+                setPickerOpen(false);
+              }}
+            >
+              <EmoteList.Search />
+              <EmoteList.Tabs />
+              <EmoteList.Grid />
+            </EmoteList.Root>
+          </ReactionButton.Content>
+        </ReactionButton.Popover>
+
+        <button
+          type="button"
+          onClick={send}
+          className="rounded-full bg-foreground px-4 py-1.5 text-sm font-semibold text-background"
+        >
+          Send
+        </button>
+      </div>
+    </div>
   );
 }
 ```
 
+</Tab>
+
+<Tab value="Svelte">
+
+```svelte title="components/ChatComposer.svelte"
+<script lang="ts">
+  import { EmoteAutocomplete, EmoteList, ReactionButton } from '@emoteer/svelte';
+
+  let value = $state('');
+  let pickerOpen = $state(false);
+  let messages = $state<string[]>([]);
+
+  function send() {
+    const text = value.trim();
+    if (!text) return;
+    messages = [...messages, text];
+    value = '';
+  }
+</script>
+
+<div class="flex flex-col gap-3">
+  {#if messages.length > 0}
+    <div class="flex flex-col items-end gap-1.5">
+      {#each messages as message}
+        <div
+          class="max-w-[80%] rounded-2xl rounded-br-sm bg-foreground px-3 py-1.5 text-sm text-background"
+        >
+          {message}
+        </div>
+      {/each}
+    </div>
+  {/if}
+
+  <div class="flex items-center gap-1 rounded-2xl border p-1 focus-within:border-primary">
+    <EmoteAutocomplete.Root onSelect={(_e, next) => (value = next)}>
+      <EmoteAutocomplete.Input
+        {value}
+        oninput={(e) => (value = e.currentTarget.value)}
+        onkeydown={(e) => {
+          // The autocomplete consumes Enter to pick a highlighted
+          // suggestion; only send when it didn't.
+          if (e.key === 'Enter' && !e.defaultPrevented) {
+            e.preventDefault();
+            send();
+          }
+        }}
+        placeholder="Message… type : for emoji"
+        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-1.5 outline-none"
+      />
+      <EmoteAutocomplete.Content>
+        <EmoteAutocomplete.List />
+      </EmoteAutocomplete.Content>
+    </EmoteAutocomplete.Root>
+
+    <ReactionButton.Popover open={pickerOpen} onOpenChange={(d) => (pickerOpen = d.open)}>
+      <ReactionButton.Trigger />
+      <ReactionButton.Content>
+        <EmoteList.Root
+          onSelect={(e) => {
+            value += e.unicode;
+            pickerOpen = false;
+          }}
+        >
+          <EmoteList.Search />
+          <EmoteList.Tabs />
+          <EmoteList.Grid />
+        </EmoteList.Root>
+      </ReactionButton.Content>
+    </ReactionButton.Popover>
+
+    <button
+      type="button"
+      onclick={send}
+      class="rounded-full bg-foreground px-4 py-1.5 text-sm font-semibold text-background"
+    >
+      Send
+    </button>
+  </div>
+</div>
+```
+
+</Tab>
+
+</Tabs>
+
 ## What it does
 
-- `EmoteTextArea` auto-converts any `:shortcode:` as the user types a space.
-- `EmoteAutocomplete` wraps the textarea and surfaces suggestions when the user types `:grin` (no trailing space required).
-- The picker button opens a full `EmoteList`. Selecting an emoji inserts it at the current cursor position and closes the popover.
+- Typing `:` followed by a shortcode (e.g. `:grin`) surfaces inline suggestions. Arrow keys move through them; Enter or click picks one.
+- The picker button opens a full `EmoteList`; selecting an emoji appends it to the message.
+- Enter sends — except while a suggestion is highlighted, where the autocomplete claims the key (so it never sends mid-completion). Each sent message is pushed onto the local `messages` list and rendered as a bubble.
 
 ## Notes
 
-- Insertion position in the example is the end of the string. For true "at-cursor" behavior, track `selectionStart` on the textarea and splice the unicode into `value` at that index.
-- The form handles Enter-to-send; Shift+Enter keeps the newline behavior of the textarea.
+- The input is controlled here so a single `value` drives the autocomplete, the picker and the send button. `EmoteAutocomplete.Input` is uncontrolled by design but accepts `value` / `onChange` for this.
+- `messages` is local component state for the demo — swap it for your own send handler or store to persist and stream real messages.
+- Want a growing multi-line box? Swap the single input for `EmoteTextArea` to also auto-expand `:shortcode:` to unicode as the user types.

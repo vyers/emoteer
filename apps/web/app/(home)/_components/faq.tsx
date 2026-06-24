@@ -18,8 +18,8 @@ const ITEMS = [
     a: 'Yes. Pass a locale or a custom emoji list through EmoteProvider. Shortcodes and search integrate automatically.',
   },
   {
-    q: 'When are Svelte and Vue ready?',
-    a: 'Both are on the roadmap. The framework-agnostic core already ships most of the logic, so bindings will stay thin.',
+    q: 'Which frameworks are supported?',
+    a: 'React and Svelte 5 are stable today (@emoteer/react and @emoteer/svelte) with an identical component surface. Vue is on the roadmap — the framework-agnostic core already ships most of the logic, so the binding stays thin.',
   },
 ];
 

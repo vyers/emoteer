@@ -1,13 +1,19 @@
 ---
 title: Post reactions
-description: A reaction bar with counts, toggle state and an add-reaction picker
+description: A Discord-style message with a reaction row and an add-reaction picker
 ---
 
-A social-style reaction row: existing reactions show their counts and active state, an "add" button opens a picker, and the current user can only toggle their own reactions.
+A chat-style message with reactions: the avatar, author and body sit above the reaction row. Existing reactions show their counts and active state, an "add" button opens a picker, and clicking a chip toggles your reaction.
+
+<PostReactionsPreview />
 
 ## The pattern
 
-```tsx title="components/post-reactions.tsx"
+<Tabs groupId="framework" persist items={['React', 'Svelte']}>
+
+<Tab value="React">
+
+```tsx title="components/message.tsx"
 import {
   EmoteList,
   ReactionButton,
@@ -16,55 +22,134 @@ import {
 } from '@emoteer/react';
 import { useState } from 'react';
 
-type Props = {
-  postId: string;
-  initial: Reaction[];
-  onChange: (postId: string, reactions: Reaction[]) => void;
-};
+const INITIAL: Reaction[] = [
+  { emoji: '👍', count: 8, active: false },
+  { emoji: '❤️', count: 3, active: true },
+  { emoji: '🎉', count: 2, active: false },
+];
 
-export function PostReactions({ postId, initial, onChange }: Props) {
-  const [reactions, setReactions] = useState(initial);
+export function Message() {
+  const [reactions, setReactions] = useState(INITIAL);
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  const update = (next: Reaction[]) => {
-    setReactions(next);
-    onChange(postId, next);
+  const handleToggle = (emoji: string, active: boolean) => {
+    setReactions((prev) =>
+      prev
+        .map((r) =>
+          r.emoji === emoji
+            ? { ...r, active, count: r.count + (active ? 1 : -1) }
+            : r,
+        )
+        .filter((r) => r.count > 0),
+    );
   };
 
-  const handleToggle = (emoji: string, active: boolean) => {
-    const next = reactions
+  const handleAdd = (emoji: string) => {
+    setReactions((prev) =>
+      prev.some((r) => r.emoji === emoji)
+        ? prev
+        : [...prev, { emoji, count: 1, active: true }],
+    );
+    setPickerOpen(false);
+  };
+
+  return (
+    <div className="flex gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-lg">
+        🦊
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <p className="text-sm">
+          <span className="font-semibold">vyers</span>{' '}
+          <span className="text-xs text-muted-foreground">Today at 12:42</span>
+        </p>
+        <p className="text-sm">
+          Shipping the Svelte bindings today 🚀 — react with whatever fits.
+        </p>
+
+        <div className="mt-0.5 flex flex-wrap items-center gap-2">
+          <ReactionCounter reactions={reactions} onToggle={handleToggle} />
+
+          <ReactionButton.Popover
+            open={pickerOpen}
+            onOpenChange={(d) => setPickerOpen(d.open)}
+          >
+            <ReactionButton.Trigger>
+              <button className="h-7 rounded-full border px-2.5 text-sm text-muted-foreground">
+                ＋
+              </button>
+            </ReactionButton.Trigger>
+            <ReactionButton.Content>
+              <EmoteList.Root onSelect={(e) => handleAdd(e.unicode)}>
+                <EmoteList.Search />
+                <EmoteList.Tabs />
+                <EmoteList.Grid />
+              </EmoteList.Root>
+            </ReactionButton.Content>
+          </ReactionButton.Popover>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+</Tab>
+
+<Tab value="Svelte">
+
+```svelte title="components/Message.svelte"
+<script lang="ts">
+  import {
+    EmoteList,
+    ReactionButton,
+    ReactionCounter,
+    type Reaction,
+  } from '@emoteer/svelte';
+
+  let reactions = $state<Reaction[]>([
+    { emoji: '👍', count: 8, active: false },
+    { emoji: '❤️', count: 3, active: true },
+    { emoji: '🎉', count: 2, active: false },
+  ]);
+  let pickerOpen = $state(false);
+
+  function handleToggle(emoji: string, active: boolean) {
+    reactions = reactions
       .map((r) =>
         r.emoji === emoji
           ? { ...r, active, count: r.count + (active ? 1 : -1) }
           : r,
       )
       .filter((r) => r.count > 0);
-    update(next);
-  };
+  }
 
-  const handleAdd = (emoji: string) => {
-    const existing = reactions.find((r) => r.emoji === emoji);
-    if (existing) {
-      handleToggle(emoji, !existing.active);
-    } else {
-      update([...reactions, { emoji, count: 1, active: true }]);
+  function handleAdd(emoji: string) {
+    if (!reactions.some((r) => r.emoji === emoji)) {
+      reactions = [...reactions, { emoji, count: 1, active: true }];
     }
-    setPickerOpen(false);
-  };
+    pickerOpen = false;
+  }
+</script>
 
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <ReactionCounter reactions={reactions} onToggle={handleToggle} />
+<div class="flex gap-3">
+  <div class="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-lg">
+    🦊
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <p class="text-sm">
+      <span class="font-semibold">vyers</span>
+      <span class="text-xs text-muted-foreground">Today at 12:42</span>
+    </p>
+    <p class="text-sm">
+      Shipping the Svelte bindings today 🚀 — react with whatever fits.
+    </p>
 
-      <ReactionButton.Popover
-        open={pickerOpen}
-        onOpenChange={(d) => setPickerOpen(d.open)}
-      >
-        <ReactionButton.Trigger>
-          <button className="rounded-full border border-dashed px-3 py-1.5 text-xs text-muted-foreground">
-            + Add
-          </button>
-        </ReactionButton.Trigger>
+    <div class="mt-0.5 flex flex-wrap items-center gap-2">
+      <ReactionCounter {reactions} onToggle={handleToggle} />
+
+      <ReactionButton.Popover open={pickerOpen} onOpenChange={(d) => (pickerOpen = d.open)}>
+        <ReactionButton.Trigger>＋</ReactionButton.Trigger>
         <ReactionButton.Content>
           <EmoteList.Root onSelect={(e) => handleAdd(e.unicode)}>
             <EmoteList.Search />
@@ -74,17 +159,20 @@ export function PostReactions({ postId, initial, onChange }: Props) {
         </ReactionButton.Content>
       </ReactionButton.Popover>
     </div>
-  );
-}
+  </div>
+</div>
 ```
+
+</Tab>
+
+</Tabs>
 
 ## What it does
 
-- Toggling an existing reaction bumps or decrements its count.
-- Reactions with `count === 0` are dropped from the list.
-- Adding a reaction through the picker: if the user had already reacted with that emoji, it toggles; otherwise a new reaction is pushed in as active.
-- `onChange` is called on every mutation so the parent can persist to a backend.
+- The message chrome (avatar, author, timestamp, body) is plain markup — the only stateful part is the reaction row.
+- Toggling a chip bumps or decrements its count; reactions that hit `0` drop off the list.
+- The add button opens a full picker; choosing an emoji pushes a new active reaction (or no-ops if it already exists).
 
 ## Backend integration
 
-For optimistic updates, wrap `update` in a mutation. Roll back the local state in `onError` and invalidate the post query on success. The component stays the same — all async concerns live outside it.
+The demo hardcodes the message and `INITIAL` reactions. In a real app, accept them as props and wrap `handleToggle` / `handleAdd` in mutations for optimistic updates — roll back in `onError`, invalidate the message on success. The component stays the same; all async concerns live outside it.

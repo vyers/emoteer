@@ -21,7 +21,7 @@ const PROJECT = [
 const PACKAGES = [
   { label: '@emoteer/core', status: 'stable' },
   { label: '@emoteer/react', status: 'stable' },
-  { label: '@emoteer/svelte', status: 'soon' },
+  { label: '@emoteer/svelte', status: 'stable' },
   { label: '@emoteer/vue', status: 'soon' },
 ];
 

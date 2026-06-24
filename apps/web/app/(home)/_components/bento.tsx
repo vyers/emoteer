@@ -333,7 +333,7 @@ function InputPreview() {
 function ArchitecturePreview() {
   const bindings = [
     { name: 'React', ready: true },
-    { name: 'Svelte', ready: false },
+    { name: 'Svelte', ready: true },
     { name: 'Vue', ready: false },
   ];
   return (
